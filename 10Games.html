@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 Games Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the Inter font and overall body */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to start to allow scrolling for more content */
+            min-height: 100vh;
+            padding: 2rem 1rem; /* Add padding for mobile view */
+            box-sizing: border-box;
+        }
+        .game-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto; /* Allow scrolling for game content if it's tall */
+            width: 100%; /* Ensure it takes full width on smaller screens */
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease-in-out;
+        }
+        .modal-close-btn:hover {
+            color: #333;
+        }
+
+        /* Tic Tac Toe specific styles */
+        .tic-tac-toe-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 80px); /* Fixed size for cells */
+            grid-template-rows: repeat(3, 80px);
+            gap: 5px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .tic-tac-toe-cell {
+            width: 80px;
+            height: 80px;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            user-select: none; /* Prevent text selection */
+        }
+        .tic-tac-toe-cell:hover {
+            background-color: #f0f0f0;
+        }
+        .tic-tac-toe-cell.x-color {
+            color: #ef4444; /* Red-500 */
+        }
+        .tic-tac-toe-cell.o-color {
+            color: #3b82f6; /* Blue-500 */
+        }
+
+        /* Hangman specific styles */
+        .hangman-word-display {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 0.5rem;
+        }
+        .hangman-letter {
+            border-bottom: 3px solid #666;
+            width: 40px;
+            text-align: center;
+            padding-bottom: 5px;
+        }
+        .hangman-letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        .hangman-letter-btn {
+            background-color: #e0e0e0;
+            color: #333;
+            font-weight: bold;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+        }
+        .hangman-letter-btn:hover:not(:disabled) {
+            background-color: #d0d0d0;
+            transform: translateY(-2px);
+        }
+        .hangman-letter-btn:disabled {
+            background-color: #a0a0a0;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        /* Whack-a-Mole specific styles */
+        .mole-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            background-color: #8B4513; /* Brown dirt color */
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        .mole-hole {
+            width: 100px;
+            height: 100px;
+            background-color: #A0522D; /* Lighter brown for holes */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* Moles pop up from the bottom */
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            border: 3px solid #6B4226;
+        }
+        .mole {
+            position: absolute;
+            bottom: -50px; /* Hidden below the hole */
+            font-size: 4rem; /* Large mole emoji */
+            transition: bottom 0.2s ease-out;
+            pointer-events: none; /* Mole emoji itself is not clickable */
+        }
+        .mole.up {
+            bottom: 5px; /* Mole pops up */
+            pointer-events: auto; /* Make mole clickable when up */
+        }
+
+        /* Canvas specific styles for games */
+        .game-canvas {
+            background-color: #eee;
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            touch-action: manipulation; /* Prevent default touch actions like double-tap zoom */
+        }
+        .game-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        .game-info {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Simon Says specific styles */
+        .simon-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 120px);
+            grid-template-rows: repeat(2, 120px);
+            gap: 15px;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .simon-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            border: 5px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+            opacity: 0.7; /* Default dimmed state */
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+        .simon-button:active {
+            transform: scale(0.95);
+        }
+        .simon-button.active {
+            opacity: 1; /* Bright when active */
+            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+        #simonRed { background-color: #ef4444; } /* Red-500 */
+        #simonGreen { background-color: #22c55e; } /* Green-500 */
+        #simonBlue { background-color: #3b82f6; } /* Blue-500 */
+        #simonYellow { background-color: #eab308; } /* Yellow-500 */
+
+        /* AI Photo Generator specific styles */
+        .ai-gen-container {
+            max-width: 600px;
+            width: 100%;
+        }
+        .ai-gen-loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #3b82f6; /* Blue-500 */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Minesweeper specific styles */
+        .minesweeper-grid {
+            display: grid;
+            border: 2px solid #333;
+            background-color: #ccc;
+        }
+        .minesweeper-cell {
+            width: 30px;
+            height: 30px;
+            background-color: #bdbdbd;
+            border: 2px solid;
+            border-color: #fff #7b7b7b #7b7b7b #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            font-size: 1.2rem;
+        }
+        .minesweeper-cell.revealed {
+            background-color: #d3d3d3;
+            border-color: #9a9a9a;
+            cursor: default;
+        }
+        .minesweeper-cell.mine {
+            background-color: #ff4d4d;
+            color: white;
+        }
+        .minesweeper-cell.flagged {
+            color: #ff0000;
+            font-size: 1.5rem;
+        }
+        .minesweeper-cell.num-1 { color: #0000ff; }
+        .minesweeper-cell.num-2 { color: #008000; }
+        .minesweeper-cell.num-3 { color: #ff0000; }
+        .minesweeper-cell.num-4 { color: #000080; }
+        .minesweeper-cell.num-5 { color: #800000; }
+        .minesweeper-cell.num-6 { color: #008080; }
+        .minesweeper-cell.num-7 { color: #000000; }
+        .minesweeper-cell.num-8 { color: #808080; }
+
+        /* Typing Game specific styles */
+        .typing-input {
+            font-family: monospace;
+            font-size: 1.5rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 2px solid #ccc;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .typing-text-display {
+            font-family: monospace;
+            font-size: 1.75rem;
+            background-color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            line-height: 1.5;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-word; /* Ensure long words break */
+        }
+        .typing-correct { color: #22c55e; }
+        .typing-incorrect { color: #ef4444; text-decoration: underline; }
+        .typing-current { background-color: #fcd34d; border-radius: 4px;}
+
+        /* Clicker Game specific styles */
+        .clicker-main-button {
+            width: 150px;
+            height: 150px;
+            background-color: #4f46e5; /* Indigo-600 */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+            transition: transform 0.1s ease-out;
+            user-select: none;
+        }
+        .clicker-main-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .clicker-upgrade-card {
+            background-color: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .clicker-upgrade-card button {
+            background-color: #10b981; /* Green-500 */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .clicker-upgrade-card button:hover:not(:disabled) {
+            background-color: #059669; /* Green-600 */
+        }
+        .clicker-upgrade-card button:disabled {
+            background-color: #a0a0a0;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg max-w-4xl w-full">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-center text-gray-800 mb-8 leading-tight">
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
+                10 Games Hub
+            </span>
+        </h1>
+
+        <p class="text-center text-gray-600 text-lg mb-10 max-w-2xl mx-auto">
+            Welcome to your ultimate gaming destination! Choose a game from the list below and let the fun begin.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Game Card 1: Flappy Bird -->
+            <div class="game-card bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+                <div class="text-5xl mb-4">🐦</div>
+                <h2 class="text-2xl font-bold mb-2">Flappy Bird</h2>
+                <p class="text-blue-100">A classic tapping challenge!</p>
+                <button class="mt-4 bg-white text-blue-600 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-blue-100 transition duration-300 ease-in-out" data-game-id="flappy-bird">
+                    Play Now
+                </button>
+            </div>
+
+            <!-- Game Card 2: Tic Tac Toe -->
+            <div class="game-card bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+                <div class="text-5xl mb-4">❌⭕</div>
+                <h2 class="text-2xl font-bold mb-2">Tic Tac Toe</h2>
+                <p class="text-green-100">Simple, yet strategic fun.</p>
+                <button class="mt-4 bg-white text-green-600 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-green-100 transition duration-300 ease-in-out" data-game-id="tic-tac-toe">
+                    Play Now
+                </button>
+            </div>
+
+            <!-- Game Card 3: Snake -->
+            <div class="game-card bg-gradient-to-br from-yellow-500 to-yellow-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+                <div class="text-5xl mb-4">🐍</div>
+                <h2 class="text-2xl font-bold mb-2">Snake</h2>
+                <p class="text-yellow-100">Grow your snake, avoid walls!</p>
+                <button class="mt-4 bg-white text-yellow-600 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-yellow-100 transition duration-300 ease-in-out" data-game-id="snake">
+                    Play Now
+                </button>
+            </div>
+
+            <!-- Game Card 4: Coin Flip -->
+            <div class="game-card bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+                <div class="text-5xl mb-4">🪙</div>
+                <h2 class="text-2xl font-bold mb-2">Coin Flip</h2>
+                <p class="text-red-100">Heads or tails? Make your call!</p>
+                <button class="mt-4 bg-white text-red-600 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-red-100 transition duration-300 ease-in-out" data-game-id="coin-flip">
+                    Play Now
+                </button>
+            </div>
+
+            <!-- Game Card 5: Rock Paper Scissors -->
+            <div class="game-card bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+                <div class="text-5xl mb-4">✊✋✌️</div>
+                <h2 class="text-2xl font-bold mb-2">Rock Paper Scissors</h2>
+                <p class="text-purple-100">The ultimate hand game!</p>
+                <button class="mt-4 bg-white text-purple-600 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-purple-100 transition duration-300 ease-in-out" data-game-id="rock-paper-scissors">
+                    Play Now
+                </button>
+            </div>
+
+            <!-- Game Card 6: Number Guessing Game -->
+            <div class="game-card bg-gradient-to-br from-pink-500 to-pink-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+                <div class="text-5xl mb-4">🔢</div>
+                <h2 class="text-2xl font-bold mb-2">Number Guessing</h2>
+                <p class="text-pink-100">Can you guess the secret number?</p>
+                <button class="mt-4 bg-white text-pink-600 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-pink-100 transition duration-300 ease-in-out" data-game-id="number-guessing">
+                    Play Now
+                </button>
+            </div>
+
+            <!-- Game Card 7: Whack-a-Mole -->
+            <div class="game-card bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+                <div class="text-5xl mb-4">🔨</div>
+                <h2 class="text-2xl font-bold mb-2">Whack-a-Mole</h2>
+                <p class="text-indigo-100">Test your reflexes!</p>
+                <button class="mt-4 bg-white text-indigo-600 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-indigo-100 transition duration-300 ease-in-out" data-game-id="whack-a-mole">
+                    Play Now
+                </button>
+            </div>
+
+            <!-- Game Card 8: Hangman -->
+            <div class="game-card bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+                <div class="text-5xl mb-4">✍️</div>
+                <h2 class="text-2xl font-bold mb-2">Hangman</h2>
+                <p class="text-orange-100">Guess the word before time runs out!</p>
+                <button class="mt-4 bg-white text-orange-600 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-orange-100 transition duration-300 ease-in-out" data-game-id="hangman">
+                    Play Now
+                </button>
+            </div>
+
+            <!-- Game Card 9: Simon Says -->
+            <div class="game-card bg-gradient-to-br from-gray-700 to-gray-800 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+                <div class="text-5xl mb-4">👂</div>
+                <h2 class="text-2xl font-bold mb-2">Simon Says</h2>
+                <p class="text-gray-100">Follow Simon's commands!</p>
+                <button class="mt-4 bg-white text-gray-700 font-semibold py-2 px-6 rounded-full shadow-lg hover="bg-gray-100 transition duration-300 ease-in-out" data-game-id="simon-says">
+                    Play Now
+                </button>
+            </div>
+
+            <!-- Game Card 10: AI Photo Generator -->
+            <div class="game-card bg-gradient-to-br from-purple-700 to-pink-700 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+                <div class="text-5xl mb-4">🎨</div>
+                <h2 class="text-2xl font-bold mb-2">AI Photo Generator</h2>
+                <p class="text-purple-100">Create images from text!</p>
+                <button class="mt-4 bg-white text-purple-700 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-purple-100 transition duration-300 ease-in-out" data-game-id="ai-photo-generator">
+                    Generate Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Modal -->
+    <div id="gameModal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="closeModal" class="modal-close-btn">&times;</button>
+            <h2 id="modalGameTitle" class="text-3xl font-bold text-gray-800 mb-6 text-center"></h2>
+            <div id="gameContainer" class="flex flex-col items-center justify-center">
+                <!-- Game content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to modal elements
+        const gameModal = document.getElementById('gameModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const modalGameTitle = document.getElementById('modalGameTitle');
+        const gameContainer = document.getElementById('gameContainer');
+        const playButtons = document.querySelectorAll('.game-card button');
+
+        // Function to open the modal and load game content
+        function openGameModal(gameId, gameName) {
+            modalGameTitle.textContent = gameName; // Set the title of the modal
+            gameContainer.innerHTML = ''; // Clear previous game content
+            gameModal.classList.add('show'); // Show the modal
+
+            // Ensure all game loops are stopped before loading a new game
+            if (typeof stopFlappyBirdGame === 'function') stopFlappyBirdGame();
+            if (typeof stopSnakeGame === 'function') stopSnakeGame();
+            if (typeof stopSimonSaysGame === 'function') stopSimonSaysGame();
+
+            // Load game content based on gameId
+            switch (gameId) {
+                case 'coin-flip':
+                    loadCoinFlipGame();
+                    break;
+                case 'tic-tac-toe':
+                    loadTicTacToeGame();
+                    break;
+                case 'rock-paper-scissors':
+                    loadRockPaperScissorsGame();
+                    break;
+                case 'number-guessing':
+                    loadNumberGuessingGame();
+                    break;
+                case 'hangman':
+                    loadHangmanGame();
+                    break;
+                case 'whack-a-mole':
+                    loadWhackAMoleGame();
+                    break;
+                case 'flappy-bird':
+                    loadFlappyBirdGame();
+                    break;
+                case 'snake':
+                    loadSnakeGame();
+                    break;
+                case 'memory-game': // This case is now for a "coming soon" placeholder
+                    gameContainer.innerHTML = `
+                        <p class="text-lg text-gray-700">Memory Game is no longer available.</p>
+                        <img src="https://placehold.co/300x200/cccccc/333333?text=Game+Removed" alt="Game removed" class="mt-4 rounded-lg shadow-md">
+                    `;
+                    break;
+                case 'simon-says':
+                    loadSimonSaysGame();
+                    break;
+                case 'ai-photo-generator':
+                    loadAIPhotoGenerator(); // New function call
+                    break;
+                default:
+                    gameContainer.innerHTML = `
+                        <p class="text-lg text-gray-700">This game is coming soon!</p>
+                        <img src="https://placehold.co/300x200/cccccc/333333?text=Game+Under+Construction" alt="Game under construction" class="mt-4 rounded-lg shadow-md">
+                    `;
+                    break;
+            }
+        }
+
+        // Function to close the modal
+        function closeGameModal() {
+            gameModal.classList.remove('show'); // Hide the modal
+            gameContainer.innerHTML = ''; // Clear game content after closing
+            // Important: Stop any ongoing game loops when closing the modal
+            if (typeof stopFlappyBirdGame === 'function') stopFlappyBirdGame();
+            if (typeof stopSnakeGame === 'function') stopSnakeGame();
+            if (typeof stopSimonSaysGame === 'function') stopSimonSaysGame();
+        }
+
+        // Add event listeners to all "Play Now" buttons
+        playButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const gameId = button.dataset.gameId;
+                const gameName = button.closest('.game-card').querySelector('h2').textContent;
+                openGameModal(gameId, gameName);
+            });
+        });
+
+        // Add event listener to the close button
+        closeModalBtn.addEventListener('click', closeGameModal);
+
+        // Close modal when clicking outside the content
+        gameModal.addEventListener('click', (e) => {
+            if (e.target === gameModal) {
+                closeGameModal();
+            }
+        });
+
+        // --- Coin Flip Game Logic ---
+        function loadCoinFlipGame() {
+            gameContainer.innerHTML = `
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-sm w-full">
+                    <div id="coin" class="text-9xl mb-8 transition-transform duration-500 ease-in-out transform rotate-y-0">
+                        🪙
+                    </div>
+                    <button id="flipCoinBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                        Flip Coin
+                    </button>
+                    <p id="coinResult" class="mt-6 text-2xl font-semibold text-gray-800"></p>
+                </div>
+            `;
+
+            const flipCoinBtn = document.getElementById('flipCoinBtn');
+            const coinResult = document.getElementById('coinResult');
+            const coinEmoji = document.getElementById('coin');
+
+            flipCoinBtn.addEventListener('click', () => {
+                // Disable button during flip animation
+                flipCoinBtn.disabled = true;
+                coinResult.textContent = 'Flipping...';
+                coinEmoji.style.transition = 'none'; // Remove transition for immediate reset
+                coinEmoji.style.transform = 'rotateY(0deg)'; // Reset rotation
+
+                // Small delay to ensure reset is rendered before starting new animation
+                setTimeout(() => {
+                    const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
+                    const rotation = result === 'Heads' ? 360 * 3 : 360 * 3 + 180; // Multiple full rotations + 0 or 180 for heads/tails
+
+                    coinEmoji.style.transition = 'transform 2s ease-out'; // Apply transition
+                    coinEmoji.style.transform = `rotateY(${rotation}deg)`; // Start animation
+
+                    setTimeout(() => {
+                        coinResult.textContent = `It's ${result}!`;
+                        coinEmoji.textContent = result === 'Heads' ? '👑' : '🎯'; // Change emoji based on result
+                        flipCoinBtn.disabled = false; // Re-enable button
+                    }, 2000); // Match this with the CSS transition duration
+                }, 50);
+            });
+        }
+
+        // --- Tic Tac Toe Game Logic ---
+        function loadTicTacToeGame() {
+            gameContainer.innerHTML = `
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-md w-full">
+                    <div id="ticTacToeBoard" class="tic-tac-toe-grid">
+                        <div class="tic-tac-toe-cell" data-cell-index="0"></div>
+                        <div class="tic-tac-toe-cell" data-cell-index="1"></div>
+                        <div class="tic-tac-toe-cell" data-cell-index="2"></div>
+                        <div class="tic-tac-toe-cell" data-cell-index="3"></div>
+                        <div class="tic-tac-toe-cell" data-cell-index="4"></div>
+                        <div class="tic-tac-toe-cell" data-cell-index="5"></div>
+                        <div class="tic-tac-toe-cell" data-cell-index="6"></div>
+                        <div class="tic-tac-toe-cell" data-cell-index="7"></div>
+                        <div class="tic-tac-toe-cell" data-cell-index="8"></div>
+                    </div>
+                    <p id="ticTacToeStatus" class="mt-6 text-2xl font-semibold text-gray-800">Player X's Turn</p>
+                    <button id="ticTacToeResetBtn" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-300">
+                        Reset Game
+                    </button>
+                </div>
+            `;
+
+            const board = document.getElementById('ticTacToeBoard');
+            const statusDisplay = document.getElementById('ticTacToeStatus');
+            const resetButton = document.getElementById('ticTacToeResetBtn');
+            let gameBoard = ['', '', '', '', '', '', '', '', ''];
+            let currentPlayer = 'X';
+            let gameActive = true;
+
+            const winningConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                [0, 4, 8], [2, 4, 6]             // Diagonals
+            ];
+
+            function handleCellPlayed(clickedCell, clickedCellIndex) {
+                gameBoard[clickedCellIndex] = currentPlayer;
+                clickedCell.textContent = currentPlayer;
+                clickedCell.classList.add(currentPlayer === 'X' ? 'x-color' : 'o-color');
+            }
+
+            function handlePlayerChange() {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                statusDisplay.textContent = `Player ${currentPlayer}'s Turn`;
+            }
+
+            function handleResultValidation() {
+                let roundWon = false;
+                for (let i = 0; i < winningConditions.length; i++) {
+                    const winCondition = winningConditions[i];
+                    let a = gameBoard[winCondition[0]];
+                    let b = gameBoard[winCondition[1]];
+                    let c = gameBoard[winCondition[2]];
+                    if (a === '' || b === '' || c === '') {
+                        continue;
+                    }
+                    if (a === b && b === c) {
+                        roundWon = true;
+                        break;
+                    }
+                }
+
+                if (roundWon) {
+                    statusDisplay.textContent = `Player ${currentPlayer} Wins! 🎉`;
+                    gameActive = false;
+                    return;
+                }
+
+                if (!gameBoard.includes('')) {
+                    statusDisplay.textContent = 'It\'s a Draw! 🤝';
+                    gameActive = false;
+                    return;
+                }
+
+                handlePlayerChange();
+            }
+
+            function handleCellClick(event) {
+                const clickedCell = event.target;
+                const clickedCellIndex = parseInt(clickedCell.dataset.cellIndex);
+
+                if (gameBoard[clickedCellIndex] !== '' || !gameActive) {
+                    return;
+                }
+
+                handleCellPlayed(clickedCell, clickedCellIndex);
+                handleResultValidation();
+            }
+
+            function handleResetGame() {
+                gameBoard = ['', '', '', '', '', '', '', '', ''];
+                currentPlayer = 'X';
+                gameActive = true;
+                statusDisplay.textContent = `Player ${currentPlayer}'s Turn`;
+                document.querySelectorAll('.tic-tac-toe-cell').forEach(cell => {
+                    cell.textContent = '';
+                    cell.classList.remove('x-color', 'o-color');
+                });
+            }
+
+            board.addEventListener('click', handleCellClick);
+            resetButton.addEventListener('click', handleResetGame);
+        }
+
+        // --- Rock Paper Scissors Game Logic ---
+        function loadRockPaperScissorsGame() {
+            gameContainer.innerHTML = `
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-md w-full">
+                    <p class="text-xl font-semibold text-gray-700 mb-4">Choose your move:</p>
+                    <div class="flex space-x-4 mb-6">
+                        <button class="rps-choice-btn bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105" data-choice="rock">✊ Rock</button>
+                        <button class="rps-choice-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105" data-choice="paper">✋ Paper</button>
+                        <button class="rps-choice-btn bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105" data-choice="scissors">✌️ Scissors</button>
+                    </div>
+                    <div class="text-center mb-6">
+                        <p class="text-lg text-gray-600">You chose: <span id="playerChoice" class="font-bold text-gray-800"></span></p>
+                        <p class="text-lg text-gray-600">Computer chose: <span id="computerChoice" class="font-bold text-gray-800"></span></p>
+                    </div>
+                    <p id="rpsResult" class="text-3xl font-extrabold text-gray-900 mb-6"></p>
+                    <p class="text-xl font-semibold text-gray-700">Score: <span id="playerScore">0</span> - <span id="computerScore">0</span></p>
+                    <button id="rpsResetBtn" class="mt-6 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-300">
+                        Reset Score
+                    </button>
+                </div>
+            `;
+
+            const choices = ['rock', 'paper', 'scissors'];
+            const choiceButtons = document.querySelectorAll('.rps-choice-btn');
+            const playerChoiceDisplay = document.getElementById('playerChoice');
+            const computerChoiceDisplay = document.getElementById('computerChoice');
+            const resultDisplay = document.getElementById('rpsResult');
+            const playerScoreDisplay = document.getElementById('playerScore');
+            const computerScoreDisplay = document.getElementById('computerScore');
+            const rpsResetBtn = document.getElementById('rpsResetBtn');
+
+            let playerScore = 0;
+            let computerScore = 0;
+
+            function getComputerChoice() {
+                const randomIndex = Math.floor(Math.random() * choices.length);
+                return choices[randomIndex];
+            }
+
+            function determineWinner(player, computer) {
+                if (player === computer) {
+                    return 'It\'s a Tie!';
+                } else if (
+                    (player === 'rock' && computer === 'scissors') ||
+                    (player === 'paper' && computer === 'rock') ||
+                    (player === 'scissors' && computer === 'paper')
+                ) {
+                    playerScore++;
+                    return 'You Win! 🎉';
+                } else {
+                    computerScore++;
+                    return 'Computer Wins! 🤖';
+                }
+            }
+
+            function updateScoreDisplay() {
+                playerScoreDisplay.textContent = playerScore;
+                computerScoreDisplay.textContent = computerScore;
+            }
+
+            function playRound(playerSelection) {
+                const computerSelection = getComputerChoice();
+                playerChoiceDisplay.textContent = playerSelection.charAt(0).toUpperCase() + playerSelection.slice(1);
+                computerChoiceDisplay.textContent = computerSelection.charAt(0).toUpperCase() + computerSelection.slice(1);
+                
+                const result = determineWinner(playerSelection, computerSelection);
+                resultDisplay.textContent = result;
+                updateScoreDisplay();
+            }
+
+            choiceButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    playRound(e.target.dataset.choice);
+                });
+            });
+
+            rpsResetBtn.addEventListener('click', () => {
+                playerScore = 0;
+                computerScore = 0;
+                updateScoreDisplay();
+                playerChoiceDisplay.textContent = '';
+                computerChoiceDisplay.textContent = '';
+                resultDisplay.textContent = '';
+            });
+        }
+
+        // --- Number Guessing Game Logic ---
+        function loadNumberGuessingGame() {
+            gameContainer.innerHTML = `
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-sm w-full">
+                    <p class="text-xl font-semibold text-gray-700 mb-4">Guess a number between 1 and 100:</p>
+                    <input type="number" id="guessInput" class="w-full p-3 border border-gray-300 rounded-lg text-center text-2xl mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400" min="1" max="100" placeholder="Enter your guess">
+                    <button id="submitGuessBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                        Submit Guess
+                    </button>
+                    <p id="guessResult" class="mt-6 text-2xl font-semibold text-gray-800"></p>
+                    <p id="guessCount" class="mt-2 text-lg text-gray-600">Guesses: 0</p>
+                    <button id="resetGuessingGameBtn" class="mt-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-300">
+                        Play Again
+                    </button>
+                </div>
+            `;
+
+            const guessInput = document.getElementById('guessInput');
+            const submitGuessBtn = document.getElementById('submitGuessBtn');
+            const guessResult = document.getElementById('guessResult');
+            const guessCountDisplay = document.getElementById('guessCount');
+            const resetGuessingGameBtn = document.getElementById('resetGuessingGameBtn');
+
+            let secretNumber;
+            let guesses = 0;
+
+            function initializeGame() {
+                secretNumber = Math.floor(Math.random() * 100) + 1;
+                guesses = 0;
+                guessCountDisplay.textContent = `Guesses: ${guesses}`;
+                guessResult.textContent = '';
+                guessInput.value = '';
+                guessInput.disabled = false;
+                submitGuessBtn.disabled = false;
+                submitGuessBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            function checkGuess() {
+                const userGuess = parseInt(guessInput.value);
+
+                if (isNaN(userGuess) || userGuess < 1 || userGuess > 100) {
+                    guessResult.textContent = 'Please enter a valid number between 1 and 100.';
+                    guessResult.classList.add('text-red-600');
+                    return;
+                }
+
+                guesses++;
+                guessCountDisplay.textContent = `Guesses: ${guesses}`;
+                guessResult.classList.remove('text-red-600', 'text-green-600');
+
+                if (userGuess === secretNumber) {
+                    guessResult.textContent = `Congratulations! You guessed the number ${secretNumber} in ${guesses} guesses! 🎉`;
+                    guessResult.classList.add('text-green-600');
+                    guessInput.disabled = true;
+                    submitGuessBtn.disabled = true;
+                    submitGuessBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else if (userGuess < secretNumber) {
+                    guessResult.textContent = 'Too low! Try again.';
+                    guessResult.classList.add('text-blue-600');
+                } else {
+                    guessResult.textContent = 'Too high! Try again.';
+                    guessResult.classList.add('text-blue-600');
+                }
+            }
+
+            submitGuessBtn.addEventListener('click', checkGuess);
+            guessInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    checkGuess();
+                }
+            });
+            resetGuessingGameBtn.addEventListener('click', initializeGame);
+
+            initializeGame(); // Start the game when loaded
+        }
+
+        // --- Hangman Game Logic ---
+        function loadHangmanGame() {
+            gameContainer.innerHTML = `
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-xl w-full">
+                    <canvas id="hangmanCanvas" width="200" height="250" class="mb-4 border border-gray-300 rounded-lg"></canvas>
+                    <div id="hangmanWordDisplay" class="hangman-word-display mb-6"></div>
+                    <p id="hangmanStatus" class="text-xl font-semibold text-gray-800 mb-6">Guess a letter!</p>
+                    <div id="hangmanLetters" class="hangman-letters-container mb-6"></div>
+                    <button id="hangmanResetBtn" class="mt-4 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-orange-300">
+                        New Game
+                    </button>
+                </div>
+            `;
+
+            const words = ["JAVASCRIPT", "PROGRAMMING", "COMPUTER", "DEVELOPER", "ALGORITHM", "WEBSITE", "HTML", "CSS", "REACT"];
+            let selectedWord = '';
+            let guessedWord = [];
+            let wrongGuesses = 0;
+            const maxWrongGuesses = 6;
+            let guessedLetters = new Set();
+
+            const hangmanCanvas = document.getElementById('hangmanCanvas');
+            const ctx = hangmanCanvas.getContext('2d');
+            const wordDisplay = document.getElementById('hangmanWordDisplay');
+            const statusDisplay = document.getElementById('hangmanStatus');
+            const lettersContainer = document.getElementById('hangmanLetters');
+            const resetButton = document.getElementById('hangmanResetBtn');
+
+            function drawHangman() {
+                ctx.clearRect(0, 0, hangmanCanvas.width, hangmanCanvas.height);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#333';
+
+                // Gallow base
+                ctx.beginPath();
+                ctx.moveTo(10, 240);
+                ctx.lineTo(100, 240);
+                ctx.stroke();
+
+                // Gallow vertical
+                ctx.beginPath();
+                ctx.moveTo(50, 240);
+                ctx.lineTo(50, 10);
+                ctx.stroke();
+
+                // Gallow horizontal
+                ctx.beginPath();
+                ctx.moveTo(50, 10);
+                ctx.lineTo(150, 10);
+                ctx.stroke();
+
+                // Rope
+                ctx.beginPath();
+                ctx.moveTo(150, 10);
+                ctx.lineTo(150, 30);
+                ctx.stroke();
+
+                // Head
+                if (wrongGuesses > 0) {
+                    ctx.beginPath();
+                    ctx.arc(150, 50, 20, 0, Math.PI * 2, true);
+                    ctx.stroke();
+                }
+                // Body
+                if (wrongGuesses > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(150, 70);
+                    ctx.lineTo(150, 140);
+                    ctx.stroke();
+                }
+                // Left Arm
+                if (wrongGuesses > 2) {
+                    ctx.beginPath();
+                    ctx.moveTo(150, 80);
+                    ctx.lineTo(120, 110);
+                    ctx.stroke();
+                }
+                // Right Arm
+                if (wrongGuesses > 3) {
+                    ctx.beginPath();
+                    ctx.moveTo(150, 80);
+                    ctx.lineTo(180, 110);
+                    ctx.stroke();
+                }
+                // Left Leg
+                if (wrongGuesses > 4) {
+                    ctx.beginPath();
+                    ctx.moveTo(150, 140);
+                    ctx.lineTo(120, 180);
+                    ctx.stroke();
+                }
+                // Right Leg
+                if (wrongGuesses > 5) {
+                    ctx.beginPath();
+                    ctx.moveTo(150, 140);
+                    ctx.lineTo(180, 180);
+                    ctx.stroke();
+                }
+            }
+
+            function initializeHangmanGame() {
+                selectedWord = words[Math.floor(Math.random() * words.length)];
+                guessedWord = Array(selectedWord.length).fill('_');
+                wrongGuesses = 0;
+                guessedLetters.clear();
+                statusDisplay.textContent = 'Guess a letter!';
+                drawHangman();
+                renderWordDisplay();
+                renderLetterButtons();
+            }
+
+            function renderWordDisplay() {
+                wordDisplay.innerHTML = guessedWord.map(letter => `<span class="hangman-letter">${letter}</span>`).join('');
+            }
+
+            function renderLetterButtons() {
+                lettersContainer.innerHTML = '';
+                for (let i = 0; i < 26; i++) {
+                    const letter = String.fromCharCode(65 + i); // A-Z
+                    const button = document.createElement('button');
+                    button.textContent = letter;
+                    button.classList.add('hangman-letter-btn', 'py-2', 'px-3', 'rounded-md', 'font-bold');
+                    button.dataset.letter = letter;
+                    button.disabled = guessedLetters.has(letter);
+                    button.addEventListener('click', handleLetterGuess);
+                    lettersContainer.appendChild(button);
+                }
+            }
+
+            function handleLetterGuess(event) {
+                const guessedLetter = event.target.dataset.letter;
+                if (!guessedLetter || guessedLetters.has(guessedLetter)) {
+                    return;
+                }
+
+                guessedLetters.add(guessedLetter);
+                event.target.disabled = true;
+
+                let found = false;
+                for (let i = 0; i < selectedWord.length; i++) {
+                    if (selectedWord[i] === guessedLetter) {
+                        guessedWord[i] = guessedLetter;
+                        found = true;
+                    }
+                }
+
+                if (found) {
+                    renderWordDisplay();
+                    if (!guessedWord.includes('_')) {
+                        statusDisplay.textContent = 'You guessed the word! You Win! 🎉';
+                        disableLetterButtons();
+                    }
+                } else {
+                    wrongGuesses++;
+                    drawHangman();
+                    if (wrongGuesses >= maxWrongGuesses) {
+                        statusDisplay.textContent = `Game Over! The word was "${selectedWord}" 💀`;
+                        disableLetterButtons();
+                    } else {
+                        statusDisplay.textContent = `Wrong guess! You have ${maxWrongGuesses - wrongGuesses} tries left.`;
+                    }
+                }
+            }
+
+            function disableLetterButtons() {
+                document.querySelectorAll('.hangman-letter-btn').forEach(btn => {
+                    btn.disabled = true;
+                });
+            }
+
+            resetButton.addEventListener('click', initializeHangmanGame);
+
+            initializeHangmanGame();
+        }
+
+        // --- Whack-a-Mole Game Logic ---
+        function loadWhackAMoleGame() {
+            gameContainer.innerHTML = `
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-md w-full">
+                    <div class="flex justify-between w-full mb-4">
+                        <p class="text-xl font-semibold text-gray-700">Score: <span id="moleScore">0</span></p>
+                        <p class="text-xl font-semibold text-gray-700">Time: <span id="moleTime">30</span>s</p>
+                    </div>
+                    <div id="moleGrid" class="mole-grid mb-6">
+                        <!-- Holes will be generated here -->
+                    </div>
+                    <p id="moleStatus" class="text-2xl font-bold text-gray-800 mb-6"></p>
+                    <button id="moleStartBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-300">
+                        Start Game
+                    </button>
+                    <button id="moleResetBtn" class="mt-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-300 hidden">
+                        Reset Game
+                    </button>
+                </div>
+            `;
+
+            const moleGrid = document.getElementById('moleGrid');
+            const moleScoreDisplay = document.getElementById('moleScore');
+            const moleTimeDisplay = document.getElementById('moleTime');
+            const moleStatusDisplay = document.getElementById('moleStatus');
+            const moleStartBtn = document.getElementById('moleStartBtn');
+            const moleResetBtn = document.getElementById('moleResetBtn');
+
+            let score = 0;
+            let time = 30;
+            let timerId;
+            let molePopUpTimer;
+            let lastMoleIndex = -1;
+            let gameActive = false;
+
+            // Create 9 holes
+            for (let i = 0; i < 9; i++) {
+                const hole = document.createElement('div');
+                hole.classList.add('mole-hole');
+                hole.dataset.index = i;
+                const mole = document.createElement('div');
+                mole.classList.add('mole');
+                mole.textContent = '🦔'; // Mole emoji
+                hole.appendChild(mole);
+                moleGrid.appendChild(hole);
+            }
+
+            const holes = document.querySelectorAll('.mole-hole');
+
+            function randomHole() {
+                const randomIndex = Math.floor(Math.random() * holes.length);
+                const hole = holes[randomIndex];
+                if (hole.dataset.index === lastMoleIndex) {
+                    return randomHole(); // Avoid the same hole twice in a row
+                }
+                lastMoleIndex = hole.dataset.index;
+                return hole;
+            }
+
+            function popUpMole() {
+                if (!gameActive) return;
+
+                const hole = randomHole();
+                const mole = hole.querySelector('.mole');
+
+                mole.classList.add('up');
+                mole.addEventListener('click', whackMole);
+
+                const popUpTime = Math.random() * 1000 + 500; // Mole stays up for 0.5 to 1.5 seconds
+                molePopUpTimer = setTimeout(() => {
+                    mole.classList.remove('up');
+                    mole.removeEventListener('click', whackMole); // Remove listener after mole goes down
+                    if (gameActive) { // Only pop up next mole if game is still active
+                        popUpMole();
+                    }
+                }, popUpTime);
+            }
+
+            function whackMole(event) {
+                if (!gameActive) return;
+                score++;
+                moleScoreDisplay.textContent = score;
+                event.target.classList.remove('up'); // Make mole go down immediately
+                event.target.removeEventListener('click', whackMole); // Prevent double-clicking
+                clearTimeout(molePopUpTimer); // Clear the current mole's pop-up timer
+                popUpMole(); // Immediately pop up a new mole
+            }
+
+            function startGame() {
+                score = 0;
+                time = 30;
+                gameActive = true;
+                moleScoreDisplay.textContent = score;
+                moleTimeDisplay.textContent = time;
+                moleStatusDisplay.textContent = 'Whack the moles!';
+                moleStartBtn.classList.add('hidden');
+                moleResetBtn.classList.remove('hidden');
+
+                // Clear any lingering moles from previous game
+                holes.forEach(hole => {
+                    hole.querySelector('.mole').classList.remove('up');
+                    hole.querySelector('.mole').removeEventListener('click', whackMole);
+                });
+
+                popUpMole();
+                timerId = setInterval(() => {
+                    time--;
+                    moleTimeDisplay.textContent = time;
+                    if (time <= 0) {
+                        endGame();
+                    }
+                }, 1000);
+            }
+
+            function endGame() {
+                gameActive = false;
+                clearInterval(timerId);
+                clearTimeout(molePopUpTimer);
+                moleStatusDisplay.textContent = `Game Over! Your score: ${score} 🎉`;
+                moleStartBtn.classList.remove('hidden'); // Show start button again
+                moleResetBtn.classList.add('hidden'); // Hide reset button
+                // Ensure all moles are down and not clickable
+                holes.forEach(hole => {
+                    hole.querySelector('.mole').classList.remove('up');
+                    hole.querySelector('.mole').removeEventListener('click', whackMole);
+                });
+            }
+
+            moleStartBtn.addEventListener('click', startGame);
+            moleResetBtn.addEventListener('click', startGame); // Reset also starts a new game
+        }
+
+        // --- Flappy Bird Game Logic ---
+        let flappyBirdGameLoopId; // Global variable to store the animation frame ID
+        let flappyBirdGameActive = false; // Flag to control game loop
+
+        function loadFlappyBirdGame() {
+            gameContainer.innerHTML = `
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-md w-full">
+                    <canvas id="flappyBirdCanvas" class="game-canvas w-full h-80 bg-blue-200"></canvas>
+                    <p id="flappyBirdScore" class="game-info mt-4 text-2xl text-gray-800">Score: 0</p>
+                    <p id="flappyBirdStatus" class="game-info text-xl text-red-600 hidden">Game Over!</p>
+                    <div class="game-controls">
+                        <button id="flappyBirdStartBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out">
+                            Start Game
+                        </button>
+                        <button id="flappyBirdResetBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out hidden">
+                            Reset Game
+                        </button>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Tap/Click to flap, or press Spacebar!</p>
+                </div>
+            `;
+
+            const canvas = document.getElementById('flappyBirdCanvas');
+            const ctx = canvas.getContext('2d');
+            const scoreDisplay = document.getElementById('flappyBirdScore');
+            const statusDisplay = document.getElementById('flappyBirdStatus');
+            const startBtn = document.getElementById('flappyBirdStartBtn');
+            const resetBtn = document.getElementById('flappyBirdResetBtn');
+
+            // Set canvas dimensions responsively
+            function resizeCanvas() {
+                const containerWidth = canvas.parentElement.clientWidth;
+                canvas.width = Math.min(containerWidth - 40, 400); // Max width 400, or container width - padding
+                canvas.height = 300;
+            }
+            resizeCanvas(); // Initial resize
+            window.addEventListener('resize', resizeCanvas); // Resize on window resize
+
+            // Game variables (ADJUSTED FOR EASIER PLAY)
+            let birdX = 50;
+            let birdY = canvas.height / 2;
+            let birdVelocity = 0;
+            const gravity = 0.2; // Reduced gravity
+            const jumpStrength = -3.5; // FURTHER ADJUSTED jump strength (less high than -5)
+
+            const pipeWidth = 40;
+            const pipeGap = 120; // Slightly larger gap between top and bottom pipes
+            const pipeSpeed = 1.5; // Slightly slower pipes
+            let pipes = [];
+            let score = 0;
+
+            function drawBird() {
+                ctx.fillStyle = 'yellow';
+                ctx.beginPath();
+                ctx.arc(birdX, birdY, 15, 0, Math.PI * 2); // Simple circle bird
+                ctx.fill();
+                ctx.strokeStyle = 'orange';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            function drawPipes() {
+                ctx.fillStyle = 'green';
+                pipes.forEach(pipe => {
+                    ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
+                    ctx.fillRect(pipe.x, pipe.bottomY, pipeWidth, canvas.height - pipe.bottomY);
+                });
+            }
+
+            function generatePipe() {
+                const minHeight = 50;
+                const maxHeight = canvas.height - pipeGap - minHeight;
+                const topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+                const bottomY = topHeight + pipeGap;
+                pipes.push({ x: canvas.width, topHeight, bottomY, passed: false });
+            }
+
+            function updateGameArea() {
+                // Bird physics
+                birdVelocity += gravity;
+                birdY += birdVelocity;
+
+                // Move pipes and generate new ones
+                if (flappyBirdGameActive) {
+                    pipes.forEach(pipe => {
+                        pipe.x -= pipeSpeed;
+                        // Check for scoring
+                        if (pipe.x + pipeWidth < birdX && !pipe.passed) {
+                            score++;
+                            scoreDisplay.textContent = `Score: ${score}`;
+                            pipe.passed = true;
+                        }
+                    });
+
+                    // Remove off-screen pipes
+                    pipes = pipes.filter(pipe => pipe.x + pipeWidth > 0);
+
+                    // Generate new pipe if needed
+                    if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 200) {
+                        generatePipe();
+                    }
+                }
+
+                // Collision detection
+                // Bird hitting top or bottom
+                if (birdY + 15 > canvas.height || birdY - 15 < 0) {
+                    endFlappyBirdGame();
+                }
+
+                // Bird hitting pipes
+                pipes.forEach(pipe => {
+                    // Check if bird is within horizontal range of pipe
+                    if (birdX + 15 > pipe.x && birdX - 15 < pipe.x + pipeWidth) {
+                        // Check if bird hits top pipe or bottom pipe
+                        if (birdY - 15 < pipe.topHeight || birdY + 15 > pipe.bottomY) {
+                            endFlappyBirdGame();
+                        }
+                    }
+                });
+            }
+
+            function drawGame() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+                drawBird();
+                drawPipes();
+            }
+
+            function gameLoop() {
+                if (flappyBirdGameActive) {
+                    updateGameArea();
+                    drawGame();
+                    flappyBirdGameLoopId = requestAnimationFrame(gameLoop);
+                }
+            }
+
+            function jump() {
+                if (flappyBirdGameActive) {
+                    birdVelocity = jumpStrength;
+                }
+            }
+
+            function startFlappyBirdGame() {
+                if (!flappyBirdGameActive) {
+                    flappyBirdGameActive = true;
+                    birdY = canvas.height / 2;
+                    birdVelocity = 0;
+                    pipes = [];
+                    score = 0;
+                    scoreDisplay.textContent = `Score: ${score}`;
+                    statusDisplay.classList.add('hidden');
+                    startBtn.classList.add('hidden');
+                    resetBtn.classList.add('hidden'); // Hide reset until game over
+                    generatePipe(); // Generate initial pipe
+                    gameLoop();
+                }
+            }
+
+            function endFlappyBirdGame() {
+                flappyBirdGameActive = false;
+                cancelAnimationFrame(flappyBirdGameLoopId);
+                statusDisplay.textContent = `Game Over! Final Score: ${score} 🎉`;
+                statusDisplay.classList.remove('hidden');
+                resetBtn.classList.remove('hidden'); // Show reset button
+                startBtn.classList.remove('hidden'); // Show start button (can be used as play again)
+            }
+
+            // Global function to stop the game, accessible from closeModal
+            window.stopFlappyBirdGame = function() {
+                if (flappyBirdGameActive) {
+                    flappyBirdGameActive = false;
+                    cancelAnimationFrame(flappyBirdGameLoopId);
+                    window.removeEventListener('keydown', handleFlappyBirdKeydown);
+                    canvas.removeEventListener('click', jump);
+                    canvas.removeEventListener('touchstart', jump);
+                    window.removeEventListener('resize', resizeCanvas);
+                }
+            };
+
+            // Event listeners
+            function handleFlappyBirdKeydown(e) {
+                if (e.code === 'Space') {
+                    e.preventDefault(); // Prevent scrolling
+                    jump();
+                }
+            }
+
+            startBtn.addEventListener('click', startFlappyBirdGame);
+            resetBtn.addEventListener('click', startFlappyBirdGame); // Reset also starts a new game
+            canvas.addEventListener('click', jump); // Click to flap
+            canvas.addEventListener('touchstart', jump); // Touch to flap for mobile
+            window.addEventListener('keydown', handleFlappyBirdKeydown);
+
+            // Initial draw
+            drawGame();
+        }
+
+        // --- Snake Game Logic ---
+        let snakeGameLoopInterval; // Global variable to store the interval ID
+        let snakeGameActive = false; // Flag to control game loop
+
+        function loadSnakeGame() {
+            gameContainer.innerHTML = `
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-md w-full">
+                    <canvas id="snakeCanvas" class="game-canvas w-full h-80 bg-gray-100"></canvas>
+                    <p id="snakeScore" class="game-info mt-4 text-2xl text-gray-800">Score: 0</p>
+                    <p id="snakeStatus" class="game-info text-xl text-red-600 hidden">Game Over!</p>
+                    <div class="game-controls flex flex-col sm:flex-row gap-2 mt-4">
+                        <button id="snakeStartBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out">
+                            Start Game
+                        </button>
+                        <button id="snakeResetBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out hidden">
+                            Reset Game
+                        </button>
+                    </div>
+                     <div class="mt-4 flex flex-col items-center">
+                        <p class="text-sm text-gray-500 mb-2">Use arrow keys or swipe on canvas to move!</p>
+                        <div class="grid grid-cols-3 gap-1">
+                            <div></div>
+                            <button class="snake-control-btn bg-gray-200 p-2 rounded-md" data-direction="up">⬆️</button>
+                            <div></div>
+                            <button class="snake-control-btn bg-gray-200 p-2 rounded-md" data-direction="left">⬅️</button>
+                            <button class="snake-control-btn bg-gray-200 p-2 rounded-md" data-direction="down">⬇️</button>
+                            <button class="snake-control-btn bg-gray-200 p-2 rounded-md" data-direction="right">➡️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const canvas = document.getElementById('snakeCanvas');
+            const ctx = canvas.getContext('2d');
+            const scoreDisplay = document.getElementById('snakeScore');
+            const statusDisplay = document.getElementById('snakeStatus');
+            const startBtn = document.getElementById('snakeStartBtn');
+            const resetBtn = document.getElementById('snakeResetBtn');
+            const controlButtons = document.querySelectorAll('.snake-control-btn');
+
+            const gridSize = 20; // Size of each snake segment/food item
+            let snake = [{ x: 10 * gridSize, y: 10 * gridSize }]; // Initial snake position
+            let food = {};
+            let dx = gridSize; // Initial direction: right
+            let dy = 0;
+            let score = 0;
+            let changingDirection = false;
+            let gameSpeed = 150; // Milliseconds per frame
+
+            // Set canvas dimensions responsively
+            function resizeCanvas() {
+                const containerWidth = canvas.parentElement.clientWidth;
+                canvas.width = Math.min(containerWidth - 40, 400); // Max width 400, or container width - padding
+                canvas.height = 400;
+            }
+            resizeCanvas(); // Initial resize
+            window.addEventListener('resize', resizeCanvas); // Resize on window resize
+
+
+            function generateFood() {
+                food = {
+                    x: Math.floor(Math.random() * (canvas.width / gridSize)) * gridSize,
+                    y: Math.floor(Math.random() * (canvas.height / gridSize)) * gridSize
+                };
+                // Ensure food doesn't spawn on the snake
+                for (let i = 0; i < snake.length; i++) {
+                    if (snake[i].x === food.x && snake[i].y === food.y) {
+                        generateFood(); // Recalculate if overlap
+                        return;
+                    }
+                }
+            }
+
+            function drawSnakePart(part) {
+                ctx.fillStyle = 'lime';
+                ctx.strokeStyle = 'darkgreen';
+                ctx.fillRect(part.x, part.y, gridSize, gridSize);
+                ctx.strokeRect(part.x, part.y, gridSize, gridSize);
+            }
+
+            function drawFood() {
+                ctx.fillStyle = 'red';
+                ctx.strokeStyle = 'darkred';
+                ctx.fillRect(food.x, food.y, gridSize, gridSize);
+                ctx.strokeRect(food.x, food.y, gridSize, gridSize);
+            }
+
+            function drawGame() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawFood();
+                snake.forEach(drawSnakePart);
+            }
+
+            function advanceSnake() {
+                const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+                snake.unshift(head); // Add new head
+
+                const didEatFood = head.x === food.x && head.y === food.y;
+                if (didEatFood) {
+                    score += 10;
+                    scoreDisplay.textContent = `Score: ${score}`;
+                    generateFood();
+                } else {
+                    snake.pop(); // Remove tail if no food eaten
+                }
+            }
+
+            function checkCollision() {
+                // Check wall collision
+                const hitLeftWall = snake[0].x < 0;
+                const hitRightWall = snake[0].x >= canvas.width;
+                const hitTopWall = snake[0].y < 0;
+                const hitBottomWall = snake[0].y >= canvas.height;
+
+                if (hitLeftWall || hitRightWall || hitTopWall || hitBottomWall) {
+                    return true;
+                }
+
+                // Check self-collision (head hits any part of body)
+                for (let i = 1; i < snake.length; i++) {
+                    if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function gameTick() {
+                if (!snakeGameActive) return;
+
+                changingDirection = false; // Allow direction change after each tick
+
+                if (checkCollision()) {
+                    endSnakeGame();
+                    return;
+                }
+
+                advanceSnake();
+                drawGame();
+            }
+
+            function changeDirection(event) {
+                if (changingDirection) return;
+                changingDirection = true;
+
+                const keyPressed = event.type === 'keydown' ? event.keyCode : null;
+                const direction = event.type === 'click' ? event.target.dataset.direction : null;
+                const goingUp = dy === -gridSize;
+                const goingDown = dy === gridSize;
+                const goingLeft = dx === -gridSize;
+                const goingRight = dx === gridSize;
+
+                if ((keyPressed === 37 || direction === 'left') && !goingRight) { // Left arrow
+                    dx = -gridSize;
+                    dy = 0;
+                } else if ((keyPressed === 38 || direction === 'up') && !goingDown) { // Up arrow
+                    dx = 0;
+                    dy = -gridSize;
+                } else if ((keyPressed === 39 || direction === 'right') && !goingLeft) { // Right arrow
+                    dx = gridSize;
+                    dy = 0;
+                } else if ((keyPressed === 40 || direction === 'down') && !goingUp) { // Down arrow
+                    dx = 0;
+                    dy = gridSize;
+                }
+            }
+
+            // Touch swipe support for mobile
+            let touchStartX = 0;
+            let touchStartY = 0;
+
+            function handleTouchStart(event) {
+                touchStartX = event.touches[0].clientX;
+                touchStartY = event.touches[0].clientY;
+            }
+
+            function handleTouchEnd(event) {
+                const touchEndX = event.changedTouches[0].clientX;
+                const touchEndY = event.changedTouches[0].clientY;
+
+                const deltaX = touchEndX - touchStartX;
+                const deltaY = touchEndY - touchStartY;
+
+                // Determine swipe direction
+                if (Math.abs(deltaX) > Math.abs(deltaY)) { // Horizontal swipe
+                    if (deltaX > 0) {
+                        changeDirection({ type: 'click', target: { dataset: { direction: 'right' } } });
+                    } else {
+                        changeDirection({ type: 'click', target: { dataset: { direction: 'left' } } });
+                    }
+                } else { // Vertical swipe
+                    if (deltaY > 0) {
+                        changeDirection({ type: 'click', target: { dataset: { direction: 'down' } } });
+                    } else {
+                        changeDirection({ type: 'click', target: { dataset: { direction: 'up' } } });
+                    }
+                }
+            }
+
+
+            function startSnakeGame() {
+                if (!snakeGameActive) {
+                    snakeGameActive = true;
+                    snake = [{ x: 10 * gridSize, y: 10 * gridSize }];
+                    dx = gridSize;
+                    dy = 0;
+                    score = 0;
+                    scoreDisplay.textContent = `Score: ${score}`;
+                    statusDisplay.classList.add('hidden');
+                    startBtn.classList.add('hidden');
+                    resetBtn.classList.add('hidden');
+                    generateFood();
+                    drawGame(); // Initial draw
+                    snakeGameLoopInterval = setInterval(gameTick, gameSpeed);
+                }
+            }
+
+            function endSnakeGame() {
+                snakeGameActive = false;
+                clearInterval(snakeGameLoopInterval);
+                statusDisplay.textContent = `Game Over! Final Score: ${score} 🎉`;
+                statusDisplay.classList.remove('hidden');
+                resetBtn.classList.remove('hidden');
+                startBtn.classList.remove('hidden');
+            }
+
+            // Global function to stop the game, accessible from closeModal
+            window.stopSnakeGame = function() {
+                if (snakeGameActive) {
+                    snakeGameActive = false;
+                    clearInterval(snakeGameLoopInterval);
+                    window.removeEventListener('keydown', changeDirection);
+                    canvas.removeEventListener('touchstart', handleTouchStart);
+                    canvas.removeEventListener('touchend', handleTouchEnd);
+                    controlButtons.forEach(btn => btn.removeEventListener('click', changeDirection));
+                    window.removeEventListener('resize', resizeCanvas);
+                }
+            };
+
+            // Event listeners
+            startBtn.addEventListener('click', startSnakeGame);
+            resetBtn.addEventListener('click', startSnakeGame); // Reset also starts a new game
+            window.addEventListener('keydown', changeDirection);
+            canvas.addEventListener('touchstart', handleTouchStart);
+            canvas.addEventListener('touchend', handleTouchEnd);
+            controlButtons.forEach(btn => btn.addEventListener('click', changeDirection));
+
+            // Initial draw
+            drawGame();
+        }
+
+        // --- Memory Game Logic ---
+        function loadMemoryGame() {
+            gameContainer.innerHTML = `
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-lg w-full">
+                    <p id="memoryMoves" class="game-info text-xl text-gray-800">Moves: 0</p>
+                    <div id="memoryGrid" class="memory-grid mb-6">
+                        <!-- Cards will be generated here -->
+                    </div>
+                    <p id="memoryStatus" class="game-info text-xl text-gray-700"></p>
+                    <button id="memoryResetBtn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out">
+                        New Game
+                    </button>
+                </div>
+            `;
+
+            const emojis = ['🍎', '🍌', '🍒', '🍇', '🍋', '🍓', '🍍', '🥝']; // 8 pairs
+            let cards = [];
+            let flippedCards = [];
+            let matchedPairs = 0;
+            let moves = 0;
+            let waitingForFlipBack = false;
+
+            const memoryGrid = document.getElementById('memoryGrid');
+            const movesDisplay = document.getElementById('memoryMoves');
+            const statusDisplay = document.getElementById('memoryStatus');
+            const resetButton = document.getElementById('memoryResetBtn');
+
+            function initializeMemoryGame() {
+                cards = [];
+                flippedCards = [];
+                matchedPairs = 0;
+                moves = 0;
+                waitingForFlipBack = false;
+                movesDisplay.textContent = `Moves: ${moves}`;
+                statusDisplay.textContent = 'Find the matching pairs!';
+                memoryGrid.innerHTML = ''; // Clear previous cards
+
+                // Create pairs of emojis
+                let gameEmojis = [...emojis, ...emojis];
+                // Shuffle them
+                gameEmojis.sort(() => Math.random() - 0.5);
+
+                // Create card elements
+                gameEmojis.forEach((emoji, index) => {
+                    const cardElement = document.createElement('div');
+                    cardElement.classList.add('memory-card');
+                    cardElement.dataset.index = index;
+                    cardElement.dataset.emoji = emoji;
+
+                    const cardInner = document.createElement('div');
+                    cardInner.classList.add('card-inner');
+
+                    const cardBack = document.createElement('div');
+                    cardBack.classList.add('card-face', 'card-back');
+                    cardBack.textContent = '?'; // Placeholder for unflipped card
+
+                    const cardFront = document.createElement('div');
+                    cardFront.classList.add('card-face', 'card-front');
+                    cardFront.textContent = emoji;
+
+                    cardInner.appendChild(cardBack);
+                    cardInner.appendChild(cardFront);
+                    cardElement.appendChild(cardInner);
+
+                    cardElement.addEventListener('click', () => flipCard(cardElement));
+                    memoryGrid.appendChild(cardElement);
+                    cards.push(cardElement);
+                });
+            }
+
+            function flipCard(cardElement) {
+                if (waitingForFlipBack || cardElement.classList.contains('flipped') || cardElement.classList.contains('matched')) {
+                    return;
+                }
+
+                cardElement.classList.add('flipped');
+                flippedCards.push(cardElement);
+
+                if (flippedCards.length === 2) {
+                    moves++;
+                    movesDisplay.textContent = `Moves: ${moves}`;
+                    waitingForFlipBack = true;
+                    checkForMatch();
+                }
+            }
+
+            function checkForMatch() {
+                const [card1, card2] = flippedCards;
+                const emoji1 = card1.dataset.emoji;
+                const emoji2 = card2.dataset.emoji;
+
+                if (emoji1 === emoji2) {
+                    // Match found
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    statusDisplay.textContent = 'Match found! 🎉';
+                    matchedPairs++;
+                    flippedCards = [];
+                    waitingForFlipBack = false;
+
+                    if (matchedPairs === emojis.length) { // All pairs matched
+                        statusDisplay.textContent = `Congratulations! You won in ${moves} moves! 🏆`;
+                    }
+                } else {
+                    // No match, flip back after a delay
+                    statusDisplay.textContent = 'No match, try again.';
+                    setTimeout(() => {
+                        card1.classList.remove('flipped');
+                        card2.classList.remove('flipped');
+                        flippedCards = [];
+                        waitingForFlipBack = false;
+                        statusDisplay.textContent = 'Find the matching pairs!';
+                    }, 1000); // 1 second delay
+                }
+            }
+
+            resetButton.addEventListener('click', initializeMemoryGame);
+            initializeMemoryGame();
+        }
+
+        // --- Simon Says Game Logic ---
+        let simonSequence = [];
+        let playerSequence = [];
+        let level = 0;
+        let simonGameActive = false;
+        let canClick = false;
+        let flashDelay = 600; // Time each button stays lit
+        let sequenceDelay = 300; // Delay between flashes in sequence
+        let timeoutIds = []; // To store timeouts for cleanup
+
+        function loadSimonSaysGame() {
+            gameContainer.innerHTML = `
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-md w-full">
+                    <p id="simonLevel" class="game-info text-2xl text-gray-800 mb-4">Level: 0</p>
+                    <div class="simon-buttons-grid">
+                        <div id="simonGreen" class="simon-button" data-color="green"></div>
+                        <div id="simonRed" class="simon-button" data-color="red"></div>
+                        <div id="simonYellow" class="simon-button" data-color="yellow"></div>
+                        <div id="simonBlue" class="simon-button" data-color="blue"></div>
+                    </div>
+                    <p id="simonStatus" class="game-info text-xl text-gray-700 mt-6">Press Start to Play!</p>
+                    <button id="simonStartBtn" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out">
+                        Start Game
+                    </button>
+                    <button id="simonResetBtn" class="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out hidden">
+                        Reset Game
+                    </button>
+                </div>
+            `;
+
+            const colors = ['green', 'red', 'yellow', 'blue'];
+            const colorButtons = document.querySelectorAll('.simon-button');
+            const levelDisplay = document.getElementById('simonLevel');
+            const statusDisplay = document.getElementById('simonStatus');
+            const startBtn = document.getElementById('simonStartBtn');
+            const resetBtn = document.getElementById('simonResetBtn');
+
+            function flashButton(color) {
+                const button = document.getElementById(`simon${color.charAt(0).toUpperCase() + color.slice(1)}`);
+                button.classList.add('active');
+                // No sound library included, so only visual flash
+                timeoutIds.push(setTimeout(() => {
+                    button.classList.remove('active');
+                }, flashDelay / 2)); // Half the flash duration for visual effect
+            }
+
+            function playSequence() {
+                canClick = false;
+                statusDisplay.textContent = 'Simon says...';
+                let i = 0;
+                const intervalId = setInterval(() => {
+                    flashButton(simonSequence[i]);
+                    i++;
+                    if (i >= simonSequence.length) {
+                        clearInterval(intervalId);
+                        timeoutIds.push(setTimeout(() => { // Small delay before allowing input
+                            statusDisplay.textContent = 'Your turn!';
+                            canClick = true;
+                        }, sequenceDelay));
+                    }
+                }, flashDelay + sequenceDelay);
+                timeoutIds.push(intervalId); // Store interval ID for cleanup
+            }
+
+            function nextRound() {
+                level++;
+                levelDisplay.textContent = `Level: ${level}`;
+                playerSequence = [];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                simonSequence.push(randomColor);
+                playSequence();
+            }
+
+            function handlePlayerClick(event) {
+                if (!canClick || !simonGameActive) return;
+
+                const clickedColor = event.target.dataset.color;
+                if (!clickedColor) return; // Clicked outside a button
+
+                flashButton(clickedColor);
+                playerSequence.push(clickedColor);
+
+                const currentSequenceIndex = playerSequence.length - 1;
+
+                if (playerSequence[currentSequenceIndex] === simonSequence[currentSequenceIndex]) {
+                    if (playerSequence.length === simonSequence.length) {
+                        // Player completed the sequence successfully
+                        canClick = false; // Prevent further clicks during transition
+                        statusDisplay.textContent = 'Correct! Get ready for next level.';
+                        timeoutIds.push(setTimeout(nextRound, 1500)); // Delay before next round
+                    }
+                } else {
+                    // Incorrect guess
+                    endSimonSaysGame();
+                }
+            }
+
+            function startSimonSaysGame() {
+                if (!simonGameActive) {
+                    simonGameActive = true;
+                    simonSequence = [];
+                    level = 0;
+                    statusDisplay.textContent = 'Starting new game...';
+                    startBtn.classList.add('hidden');
+                    resetBtn.classList.remove('hidden');
+                    nextRound();
+                }
+            }
+
+            function endSimonSaysGame() {
+                simonGameActive = false;
+                canClick = false;
+                statusDisplay.textContent = `Game Over! You reached Level ${level} 💀`;
+                startBtn.classList.remove('hidden');
+                resetBtn.classList.add('hidden');
+                // Clear all active timeouts/intervals
+                timeoutIds.forEach(id => clearTimeout(id) || clearInterval(id));
+                timeoutIds = []; // Reset the array
+            }
+
+            // Global function to stop the game, accessible from closeModal
+            window.stopSimonSaysGame = function() {
+                if (simonGameActive) {
+                    endSimonSaysGame(); // Use end game logic to clean up
+                }
+                // Ensure buttons are not active visually
+                colorButtons.forEach(btn => btn.classList.remove('active'));
+            };
+
+            // Event Listeners
+            startBtn.addEventListener('click', startSimonSaysGame);
+            resetBtn.addEventListener('click', startSimonSaysGame); // Reset also starts a new game
+            colorButtons.forEach(button => {
+                button.addEventListener('click', handlePlayerClick);
+            });
+        }
+
+        // --- AI Photo Generator Logic ---
+        function loadAIPhotoGenerator() {
+            gameContainer.innerHTML = `
+                <div class="ai-gen-container flex flex-col items-center p-6 bg-white rounded-lg shadow-xl w-full">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-center text-gray-800 mb-6 leading-tight">
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-600">
+                            AI Photo Generator
+                        </span>
+                    </h2>
+
+                    <p class="text-center text-gray-600 text-lg mb-6">
+                        Enter a description and let AI create an image for you!
+                    </p>
+
+                    <div class="w-full mb-6">
+                        <textarea id="aiPromptInput" class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-lg resize-y min-h-[100px]" placeholder="Describe the image you want to generate (e.g., 'A futuristic city at sunset, cyberpunk style')."></textarea>
+                    </div>
+
+                    <button id="aiGenerateBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 mb-6">
+                        Generate Image
+                    </button>
+
+                    <div id="aiLoadingIndicator" class="hidden flex flex-col items-center mb-6">
+                        <div class="ai-gen-loading-spinner"></div>
+                        <p class="mt-2 text-gray-600">Generating image...</p>
+                    </div>
+
+                    <div id="aiImageDisplay" class="w-full flex justify-center items-center bg-gray-100 rounded-lg overflow-hidden shadow-md min-h-[250px]">
+                        <img id="aiGeneratedImage" src="https://placehold.co/400x250/cccccc/333333?text=Your+AI+Image+Here" alt="Generated AI Image" class="w-full h-auto object-contain max-h-[500px]">
+                    </div>
+
+                    <p id="aiErrorDisplay" class="text-red-600 mt-4 hidden text-center"></p>
+                </div>
+            `;
+
+            // Get references to elements within the dynamically loaded content
+            const promptInput = document.getElementById('aiPromptInput');
+            const generateBtn = document.getElementById('aiGenerateBtn');
+            const loadingIndicator = document.getElementById('aiLoadingIndicator');
+            const generatedImage = document.getElementById('aiGeneratedImage');
+            const imageDisplay = document.getElementById('aiImageDisplay');
+            const errorDisplay = document.getElementById('aiErrorDisplay');
+
+            // Function to generate image using the Gemini API
+            async function generateImage() {
+                const prompt = promptInput.value.trim();
+                if (!prompt) {
+                    errorDisplay.textContent = 'Please enter a description for the image.';
+                    errorDisplay.classList.remove('hidden');
+                    return;
+                }
+
+                // Clear previous error and hide image
+                errorDisplay.classList.add('hidden');
+                generatedImage.classList.add('hidden');
+                generatedImage.src = ''; // Clear previous image
+                imageDisplay.style.backgroundColor = '#e2e8f0'; // Show placeholder background
+                imageDisplay.innerHTML = '<img id="aiGeneratedImage" src="https://placehold.co/400x250/cccccc/333333?text=Your+AI+Image+Here" alt="Generated AI Image" class="w-full h-auto object-contain max-h-[500px]">';
+
+
+                // Show loading indicator
+                loadingIndicator.classList.remove('hidden');
+                generateBtn.disabled = true;
+                generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                try {
+                    const payload = { instances: { prompt: prompt }, parameters: { "sampleCount": 1} };
+                    const apiKey = ""; // Leave this as-is; Canvas will provide the key at runtime.
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                        const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                        generatedImage.src = imageUrl;
+                        generatedImage.classList.remove('hidden');
+                        imageDisplay.style.backgroundColor = 'transparent'; // Remove background once image loads
+                        imageDisplay.innerHTML = '';
+                        imageDisplay.appendChild(generatedImage);
+                    } else {
+                        errorDisplay.textContent = 'Failed to generate image. Please try a different prompt.';
+                        errorDisplay.classList.remove('hidden');
+                        generatedImage.src = 'https://placehold.co/400x250/ffcccc/cc0000?text=Error'; // Error placeholder
+                        generatedImage.classList.remove('hidden');
+                        imageDisplay.innerHTML = '';
+                        imageDisplay.appendChild(generatedImage);
+                    }
+                } catch (error) {
+                    console.error('Error generating image:', error);
+                    errorDisplay.textContent = 'An error occurred while generating the image. Please try again.';
+                    errorDisplay.classList.remove('hidden');
+                    generatedImage.src = 'https://placehold.co/400x250/ffcccc/cc0000?text=Error'; // Error placeholder
+                    generatedImage.classList.remove('hidden');
+                    imageDisplay.innerHTML = '';
+                    imageDisplay.appendChild(generatedImage);
+                } finally {
+                    loadingIndicator.classList.add('hidden');
+                    generateBtn.disabled = false;
+                    generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            // Event listener for the Generate button
+            generateBtn.addEventListener('click', generateImage);
+
+            // Allow pressing Enter in the textarea to generate image
+            promptInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { // Shift+Enter for new line
+                    e.preventDefault();
+                    generateImage();
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
