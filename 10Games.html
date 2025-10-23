@@ -4,18 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>10 Games Hub</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for the Inter font and overall body */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* Light blue-gray background */
+            background-color: #f0f4f8;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align to start to allow scrolling for more content */
+            align-items: flex-start;
             min-height: 100vh;
-            padding: 2rem 1rem; /* Add padding for mobile view */
+            padding: 2rem 1rem;
             box-sizing: border-box;
         }
         .game-card {
@@ -26,7 +24,6 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
-        /* Modal styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -54,8 +51,8 @@
             position: relative;
             max-width: 90%;
             max-height: 90%;
-            overflow-y: auto; /* Allow scrolling for game content if it's tall */
-            width: 100%; /* Ensure it takes full width on smaller screens */
+            overflow-y: auto;
+            width: 100%;
         }
         .modal-close-btn {
             position: absolute;
@@ -72,10 +69,9 @@
             color: #333;
         }
 
-        /* Tic Tac Toe specific styles */
         .tic-tac-toe-grid {
             display: grid;
-            grid-template-columns: repeat(3, 80px); /* Fixed size for cells */
+            grid-template-columns: repeat(3, 80px);
             grid-template-rows: repeat(3, 80px);
             gap: 5px;
             background-color: #333;
@@ -94,19 +90,18 @@
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.2s ease-in-out;
-            user-select: none; /* Prevent text selection */
+            user-select: none;
         }
         .tic-tac-toe-cell:hover {
             background-color: #f0f0f0;
         }
         .tic-tac-toe-cell.x-color {
-            color: #ef4444; /* Red-500 */
+            color: #ef4444;
         }
         .tic-tac-toe-cell.o-color {
-            color: #3b82f6; /* Blue-500 */
+            color: #3b82f6;
         }
 
-        /* Hangman specific styles */
         .hangman-word-display {
             display: flex;
             justify-content: center;
@@ -147,13 +142,12 @@
             cursor: not-allowed;
         }
 
-        /* Whack-a-Mole specific styles */
         .mole-grid {
             display: grid;
             grid-template-columns: repeat(3, 100px);
             grid-template-rows: repeat(3, 100px);
             gap: 10px;
-            background-color: #8B4513; /* Brown dirt color */
+            background-color: #8B4513;
             padding: 15px;
             border-radius: 10px;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
@@ -161,11 +155,11 @@
         .mole-hole {
             width: 100px;
             height: 100px;
-            background-color: #A0522D; /* Lighter brown for holes */
+            background-color: #A0522D;
             border-radius: 50%;
             display: flex;
             justify-content: center;
-            align-items: flex-end; /* Moles pop up from the bottom */
+            align-items: flex-end;
             overflow: hidden;
             position: relative;
             cursor: pointer;
@@ -173,17 +167,16 @@
         }
         .mole {
             position: absolute;
-            bottom: -50px; /* Hidden below the hole */
-            font-size: 4rem; /* Large mole emoji */
+            bottom: -50px;
+            font-size: 4rem;
             transition: bottom 0.2s ease-out;
-            pointer-events: none; /* Mole emoji itself is not clickable */
+            pointer-events: none;
         }
         .mole.up {
-            bottom: 5px; /* Mole pops up */
-            pointer-events: auto; /* Make mole clickable when up */
+            bottom: 5px;
+            pointer-events: auto;
         }
 
-        /* Canvas specific styles for games */
         .game-canvas {
             background-color: #eee;
             border: 2px solid #333;
@@ -191,7 +184,7 @@
             display: block;
             margin: 0 auto;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            touch-action: manipulation; /* Prevent default touch actions like double-tap zoom */
+            touch-action: manipulation;
         }
         .game-controls {
             display: flex;
@@ -206,7 +199,6 @@
             text-align: center;
         }
 
-        /* Simon Says specific styles */
         .simon-buttons-grid {
             display: grid;
             grid-template-columns: repeat(2, 120px);
@@ -224,116 +216,25 @@
             border: 5px solid rgba(255,255,255,0.2);
             cursor: pointer;
             transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
-            opacity: 0.7; /* Default dimmed state */
+            opacity: 0.7;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
         }
         .simon-button:active {
             transform: scale(0.95);
         }
         .simon-button.active {
-            opacity: 1; /* Bright when active */
+            opacity: 1;
             box-shadow: 0 0 20px rgba(255,255,255,0.5);
         }
-        #simonRed { background-color: #ef4444; } /* Red-500 */
-        #simonGreen { background-color: #22c55e; } /* Green-500 */
-        #simonBlue { background-color: #3b82f6; } /* Blue-500 */
-        #simonYellow { background-color: #eab308; } /* Yellow-500 */
+        #simonRed { background-color: #ef4444; }
+        #simonGreen { background-color: #22c55e; }
+        #simonBlue { background-color: #3b82f6; }
+        #simonYellow { background-color: #eab308; }
 
-        /* AI Photo Generator specific styles */
-        .ai-gen-container {
-            max-width: 600px;
-            width: 100%;
-        }
-        .ai-gen-loading-spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #3b82f6; /* Blue-500 */
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Minesweeper specific styles */
-        .minesweeper-grid {
-            display: grid;
-            border: 2px solid #333;
-            background-color: #ccc;
-        }
-        .minesweeper-cell {
-            width: 30px;
-            height: 30px;
-            background-color: #bdbdbd;
-            border: 2px solid;
-            border-color: #fff #7b7b7b #7b7b7b #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            cursor: pointer;
-            user-select: none;
-            font-size: 1.2rem;
-        }
-        .minesweeper-cell.revealed {
-            background-color: #d3d3d3;
-            border-color: #9a9a9a;
-            cursor: default;
-        }
-        .minesweeper-cell.mine {
-            background-color: #ff4d4d;
-            color: white;
-        }
-        .minesweeper-cell.flagged {
-            color: #ff0000;
-            font-size: 1.5rem;
-        }
-        .minesweeper-cell.num-1 { color: #0000ff; }
-        .minesweeper-cell.num-2 { color: #008000; }
-        .minesweeper-cell.num-3 { color: #ff0000; }
-        .minesweeper-cell.num-4 { color: #000080; }
-        .minesweeper-cell.num-5 { color: #800000; }
-        .minesweeper-cell.num-6 { color: #008080; }
-        .minesweeper-cell.num-7 { color: #000000; }
-        .minesweeper-cell.num-8 { color: #808080; }
-
-        /* Typing Game specific styles */
-        .typing-input {
-            font-family: monospace;
-            font-size: 1.5rem;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 2px solid #ccc;
-            width: 100%;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        .typing-text-display {
-            font-family: monospace;
-            font-size: 1.75rem;
-            background-color: #e2e8f0;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            line-height: 1.5;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            word-break: break-word; /* Ensure long words break */
-        }
-        .typing-correct { color: #22c55e; }
-        .typing-incorrect { color: #ef4444; text-decoration: underline; }
-        .typing-current { background-color: #fcd34d; border-radius: 4px;}
-
-        /* Clicker Game specific styles */
         .clicker-main-button {
             width: 150px;
             height: 150px;
-            background-color: #4f46e5; /* Indigo-600 */
+            background-color: #4f46e5;
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -361,7 +262,7 @@
             margin-bottom: 0.75rem;
         }
         .clicker-upgrade-card button {
-            background-color: #10b981; /* Green-500 */
+            background-color: #10b981;
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
@@ -369,12 +270,13 @@
             transition: background-color 0.2s ease-in-out;
         }
         .clicker-upgrade-card button:hover:not(:disabled) {
-            background-color: #059669; /* Green-600 */
+            background-color: #059669;
         }
         .clicker-upgrade-card button:disabled {
             background-color: #a0a0a0;
             cursor: not-allowed;
         }
+
     </style>
 </head>
 <body>
@@ -390,7 +292,6 @@
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Game Card 1: Flappy Bird -->
             <div class="game-card bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
                 <div class="text-5xl mb-4">🐦</div>
                 <h2 class="text-2xl font-bold mb-2">Flappy Bird</h2>
@@ -400,7 +301,6 @@
                 </button>
             </div>
 
-            <!-- Game Card 2: Tic Tac Toe -->
             <div class="game-card bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
                 <div class="text-5xl mb-4">❌⭕</div>
                 <h2 class="text-2xl font-bold mb-2">Tic Tac Toe</h2>
@@ -410,7 +310,6 @@
                 </button>
             </div>
 
-            <!-- Game Card 3: Snake -->
             <div class="game-card bg-gradient-to-br from-yellow-500 to-yellow-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
                 <div class="text-5xl mb-4">🐍</div>
                 <h2 class="text-2xl font-bold mb-2">Snake</h2>
@@ -420,7 +319,6 @@
                 </button>
             </div>
 
-            <!-- Game Card 4: Coin Flip -->
             <div class="game-card bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
                 <div class="text-5xl mb-4">🪙</div>
                 <h2 class="text-2xl font-bold mb-2">Coin Flip</h2>
@@ -430,7 +328,6 @@
                 </button>
             </div>
 
-            <!-- Game Card 5: Rock Paper Scissors -->
             <div class="game-card bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
                 <div class="text-5xl mb-4">✊✋✌️</div>
                 <h2 class="text-2xl font-bold mb-2">Rock Paper Scissors</h2>
@@ -440,7 +337,6 @@
                 </button>
             </div>
 
-            <!-- Game Card 6: Number Guessing Game -->
             <div class="game-card bg-gradient-to-br from-pink-500 to-pink-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
                 <div class="text-5xl mb-4">🔢</div>
                 <h2 class="text-2xl font-bold mb-2">Number Guessing</h2>
@@ -450,7 +346,6 @@
                 </button>
             </div>
 
-            <!-- Game Card 7: Whack-a-Mole -->
             <div class="game-card bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
                 <div class="text-5xl mb-4">🔨</div>
                 <h2 class="text-2xl font-bold mb-2">Whack-a-Mole</h2>
@@ -460,7 +355,6 @@
                 </button>
             </div>
 
-            <!-- Game Card 8: Hangman -->
             <div class="game-card bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
                 <div class="text-5xl mb-4">✍️</div>
                 <h2 class="text-2xl font-bold mb-2">Hangman</h2>
@@ -470,7 +364,6 @@
                 </button>
             </div>
 
-            <!-- Game Card 9: Simon Says -->
             <div class="game-card bg-gradient-to-br from-gray-700 to-gray-800 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
                 <div class="text-5xl mb-4">👂</div>
                 <h2 class="text-2xl font-bold mb-2">Simon Says</h2>
@@ -480,49 +373,43 @@
                 </button>
             </div>
 
-            <!-- Game Card 10: AI Photo Generator -->
-            <div class="game-card bg-gradient-to-br from-purple-700 to-pink-700 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
-                <div class="text-5xl mb-4">🎨</div>
-                <h2 class="text-2xl font-bold mb-2">AI Photo Generator</h2>
-                <p class="text-purple-100">Create images from text!</p>
-                <button class="mt-4 bg-white text-purple-700 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-purple-100 transition duration-300 ease-in-out" data-game-id="ai-photo-generator">
-                    Generate Now
+            <div class="game-card bg-gradient-to-br from-teal-500 to-cyan-600 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+                <div class="text-5xl mb-4">💰</div>
+                <h2 class="text-2xl font-bold mb-2">Clicker Game</h2>
+                <p class="text-teal-100">Click to earn, upgrade to automate!</p>
+                <button class="mt-4 bg-white text-teal-600 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-teal-100 transition duration-300 ease-in-out" data-game-id="clicker-game">
+                    Play Now
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Game Modal -->
     <div id="gameModal" class="modal-overlay">
         <div class="modal-content">
             <button id="closeModal" class="modal-close-btn">&times;</button>
             <h2 id="modalGameTitle" class="text-3xl font-bold text-gray-800 mb-6 text-center"></h2>
             <div id="gameContainer" class="flex flex-col items-center justify-center">
-                <!-- Game content will be loaded here -->
             </div>
         </div>
     </div>
 
     <script>
-        // Get references to modal elements
         const gameModal = document.getElementById('gameModal');
         const closeModalBtn = document.getElementById('closeModal');
         const modalGameTitle = document.getElementById('modalGameTitle');
         const gameContainer = document.getElementById('gameContainer');
         const playButtons = document.querySelectorAll('.game-card button');
 
-        // Function to open the modal and load game content
         function openGameModal(gameId, gameName) {
-            modalGameTitle.textContent = gameName; // Set the title of the modal
-            gameContainer.innerHTML = ''; // Clear previous game content
-            gameModal.classList.add('show'); // Show the modal
+            modalGameTitle.textContent = gameName;
+            gameContainer.innerHTML = '';
+            gameModal.classList.add('show');
 
-            // Ensure all game loops are stopped before loading a new game
             if (typeof stopFlappyBirdGame === 'function') stopFlappyBirdGame();
             if (typeof stopSnakeGame === 'function') stopSnakeGame();
             if (typeof stopSimonSaysGame === 'function') stopSimonSaysGame();
+            if (typeof stopClickerGame === 'function') stopClickerGame();
 
-            // Load game content based on gameId
             switch (gameId) {
                 case 'coin-flip':
                     loadCoinFlipGame();
@@ -548,17 +435,11 @@
                 case 'snake':
                     loadSnakeGame();
                     break;
-                case 'memory-game': // This case is now for a "coming soon" placeholder
-                    gameContainer.innerHTML = `
-                        <p class="text-lg text-gray-700">Memory Game is no longer available.</p>
-                        <img src="https://placehold.co/300x200/cccccc/333333?text=Game+Removed" alt="Game removed" class="mt-4 rounded-lg shadow-md">
-                    `;
-                    break;
                 case 'simon-says':
                     loadSimonSaysGame();
                     break;
-                case 'ai-photo-generator':
-                    loadAIPhotoGenerator(); // New function call
+                case 'clicker-game':
+                    loadClickerGame();
                     break;
                 default:
                     gameContainer.innerHTML = `
@@ -569,17 +450,16 @@
             }
         }
 
-        // Function to close the modal
         function closeGameModal() {
-            gameModal.classList.remove('show'); // Hide the modal
-            gameContainer.innerHTML = ''; // Clear game content after closing
-            // Important: Stop any ongoing game loops when closing the modal
+            gameModal.classList.remove('show');
+            gameContainer.innerHTML = '';
+
             if (typeof stopFlappyBirdGame === 'function') stopFlappyBirdGame();
             if (typeof stopSnakeGame === 'function') stopSnakeGame();
             if (typeof stopSimonSaysGame === 'function') stopSimonSaysGame();
+            if (typeof stopClickerGame === 'function') stopClickerGame();
         }
 
-        // Add event listeners to all "Play Now" buttons
         playButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const gameId = button.dataset.gameId;
@@ -588,17 +468,14 @@
             });
         });
 
-        // Add event listener to the close button
         closeModalBtn.addEventListener('click', closeGameModal);
 
-        // Close modal when clicking outside the content
         gameModal.addEventListener('click', (e) => {
             if (e.target === gameModal) {
                 closeGameModal();
             }
         });
 
-        // --- Coin Flip Game Logic ---
         function loadCoinFlipGame() {
             gameContainer.innerHTML = `
                 <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-sm w-full">
@@ -617,30 +494,27 @@
             const coinEmoji = document.getElementById('coin');
 
             flipCoinBtn.addEventListener('click', () => {
-                // Disable button during flip animation
                 flipCoinBtn.disabled = true;
                 coinResult.textContent = 'Flipping...';
-                coinEmoji.style.transition = 'none'; // Remove transition for immediate reset
-                coinEmoji.style.transform = 'rotateY(0deg)'; // Reset rotation
+                coinEmoji.style.transition = 'none';
+                coinEmoji.style.transform = 'rotateY(0deg)';
 
-                // Small delay to ensure reset is rendered before starting new animation
                 setTimeout(() => {
                     const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
-                    const rotation = result === 'Heads' ? 360 * 3 : 360 * 3 + 180; // Multiple full rotations + 0 or 180 for heads/tails
+                    const rotation = result === 'Heads' ? 360 * 3 : 360 * 3 + 180;
 
-                    coinEmoji.style.transition = 'transform 2s ease-out'; // Apply transition
-                    coinEmoji.style.transform = `rotateY(${rotation}deg)`; // Start animation
+                    coinEmoji.style.transition = 'transform 2s ease-out';
+                    coinEmoji.style.transform = `rotateY(${rotation}deg)`;
 
                     setTimeout(() => {
                         coinResult.textContent = `It's ${result}!`;
-                        coinEmoji.textContent = result === 'Heads' ? '👑' : '🎯'; // Change emoji based on result
-                        flipCoinBtn.disabled = false; // Re-enable button
-                    }, 2000); // Match this with the CSS transition duration
+                        coinEmoji.textContent = result === 'Heads' ? '👑' : '🎯';
+                        flipCoinBtn.disabled = false;
+                    }, 2000);
                 }, 50);
             });
         }
 
-        // --- Tic Tac Toe Game Logic ---
         function loadTicTacToeGame() {
             gameContainer.innerHTML = `
                 <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-md w-full">
@@ -670,9 +544,9 @@
             let gameActive = true;
 
             const winningConditions = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-                [0, 4, 8], [2, 4, 6]             // Diagonals
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
             ];
 
             function handleCellPlayed(clickedCell, clickedCellIndex) {
@@ -744,7 +618,6 @@
             resetButton.addEventListener('click', handleResetGame);
         }
 
-        // --- Rock Paper Scissors Game Logic ---
         function loadRockPaperScissorsGame() {
             gameContainer.innerHTML = `
                 <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-md w-full">
@@ -808,7 +681,7 @@
                 const computerSelection = getComputerChoice();
                 playerChoiceDisplay.textContent = playerSelection.charAt(0).toUpperCase() + playerSelection.slice(1);
                 computerChoiceDisplay.textContent = computerSelection.charAt(0).toUpperCase() + computerSelection.slice(1);
-                
+
                 const result = determineWinner(playerSelection, computerSelection);
                 resultDisplay.textContent = result;
                 updateScoreDisplay();
@@ -830,7 +703,6 @@
             });
         }
 
-        // --- Number Guessing Game Logic ---
         function loadNumberGuessingGame() {
             gameContainer.innerHTML = `
                 <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-sm w-full">
@@ -903,10 +775,9 @@
             });
             resetGuessingGameBtn.addEventListener('click', initializeGame);
 
-            initializeGame(); // Start the game when loaded
+            initializeGame();
         }
 
-        // --- Hangman Game Logic ---
         function loadHangmanGame() {
             gameContainer.innerHTML = `
                 <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-xl w-full">
@@ -939,65 +810,55 @@
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = '#333';
 
-                // Gallow base
                 ctx.beginPath();
                 ctx.moveTo(10, 240);
                 ctx.lineTo(100, 240);
                 ctx.stroke();
 
-                // Gallow vertical
                 ctx.beginPath();
                 ctx.moveTo(50, 240);
                 ctx.lineTo(50, 10);
                 ctx.stroke();
 
-                // Gallow horizontal
                 ctx.beginPath();
                 ctx.moveTo(50, 10);
                 ctx.lineTo(150, 10);
                 ctx.stroke();
 
-                // Rope
                 ctx.beginPath();
                 ctx.moveTo(150, 10);
                 ctx.lineTo(150, 30);
                 ctx.stroke();
 
-                // Head
                 if (wrongGuesses > 0) {
                     ctx.beginPath();
                     ctx.arc(150, 50, 20, 0, Math.PI * 2, true);
                     ctx.stroke();
                 }
-                // Body
                 if (wrongGuesses > 1) {
                     ctx.beginPath();
                     ctx.moveTo(150, 70);
                     ctx.lineTo(150, 140);
                     ctx.stroke();
                 }
-                // Left Arm
                 if (wrongGuesses > 2) {
                     ctx.beginPath();
                     ctx.moveTo(150, 80);
                     ctx.lineTo(120, 110);
                     ctx.stroke();
                 }
-                // Right Arm
                 if (wrongGuesses > 3) {
                     ctx.beginPath();
                     ctx.moveTo(150, 80);
                     ctx.lineTo(180, 110);
                     ctx.stroke();
                 }
-                // Left Leg
                 if (wrongGuesses > 4) {
                     ctx.beginPath();
                     ctx.moveTo(150, 140);
                     ctx.lineTo(120, 180);
                     ctx.stroke();
                 }
-                // Right Leg
                 if (wrongGuesses > 5) {
                     ctx.beginPath();
                     ctx.moveTo(150, 140);
@@ -1024,7 +885,7 @@
             function renderLetterButtons() {
                 lettersContainer.innerHTML = '';
                 for (let i = 0; i < 26; i++) {
-                    const letter = String.fromCharCode(65 + i); // A-Z
+                    const letter = String.fromCharCode(65 + i);
                     const button = document.createElement('button');
                     button.textContent = letter;
                     button.classList.add('hangman-letter-btn', 'py-2', 'px-3', 'rounded-md', 'font-bold');
@@ -1081,7 +942,6 @@
             initializeHangmanGame();
         }
 
-        // --- Whack-a-Mole Game Logic ---
         function loadWhackAMoleGame() {
             gameContainer.innerHTML = `
                 <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-md w-full">
@@ -1090,7 +950,6 @@
                         <p class="text-xl font-semibold text-gray-700">Time: <span id="moleTime">30</span>s</p>
                     </div>
                     <div id="moleGrid" class="mole-grid mb-6">
-                        <!-- Holes will be generated here -->
                     </div>
                     <p id="moleStatus" class="text-2xl font-bold text-gray-800 mb-6"></p>
                     <button id="moleStartBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-300">
@@ -1116,14 +975,13 @@
             let lastMoleIndex = -1;
             let gameActive = false;
 
-            // Create 9 holes
             for (let i = 0; i < 9; i++) {
                 const hole = document.createElement('div');
                 hole.classList.add('mole-hole');
                 hole.dataset.index = i;
                 const mole = document.createElement('div');
                 mole.classList.add('mole');
-                mole.textContent = '🦔'; // Mole emoji
+                mole.textContent = '🦔';
                 hole.appendChild(mole);
                 moleGrid.appendChild(hole);
             }
@@ -1134,7 +992,7 @@
                 const randomIndex = Math.floor(Math.random() * holes.length);
                 const hole = holes[randomIndex];
                 if (hole.dataset.index === lastMoleIndex) {
-                    return randomHole(); // Avoid the same hole twice in a row
+                    return randomHole();
                 }
                 lastMoleIndex = hole.dataset.index;
                 return hole;
@@ -1149,11 +1007,11 @@
                 mole.classList.add('up');
                 mole.addEventListener('click', whackMole);
 
-                const popUpTime = Math.random() * 1000 + 500; // Mole stays up for 0.5 to 1.5 seconds
+                const popUpTime = Math.random() * 1000 + 500;
                 molePopUpTimer = setTimeout(() => {
                     mole.classList.remove('up');
-                    mole.removeEventListener('click', whackMole); // Remove listener after mole goes down
-                    if (gameActive) { // Only pop up next mole if game is still active
+                    mole.removeEventListener('click', whackMole);
+                    if (gameActive) {
                         popUpMole();
                     }
                 }, popUpTime);
@@ -1163,10 +1021,10 @@
                 if (!gameActive) return;
                 score++;
                 moleScoreDisplay.textContent = score;
-                event.target.classList.remove('up'); // Make mole go down immediately
-                event.target.removeEventListener('click', whackMole); // Prevent double-clicking
-                clearTimeout(molePopUpTimer); // Clear the current mole's pop-up timer
-                popUpMole(); // Immediately pop up a new mole
+                event.target.classList.remove('up');
+                event.target.removeEventListener('click', whackMole);
+                clearTimeout(molePopUpTimer);
+                popUpMole();
             }
 
             function startGame() {
@@ -1179,7 +1037,6 @@
                 moleStartBtn.classList.add('hidden');
                 moleResetBtn.classList.remove('hidden');
 
-                // Clear any lingering moles from previous game
                 holes.forEach(hole => {
                     hole.querySelector('.mole').classList.remove('up');
                     hole.querySelector('.mole').removeEventListener('click', whackMole);
@@ -1200,9 +1057,8 @@
                 clearInterval(timerId);
                 clearTimeout(molePopUpTimer);
                 moleStatusDisplay.textContent = `Game Over! Your score: ${score} 🎉`;
-                moleStartBtn.classList.remove('hidden'); // Show start button again
-                moleResetBtn.classList.add('hidden'); // Hide reset button
-                // Ensure all moles are down and not clickable
+                moleStartBtn.classList.remove('hidden');
+                moleResetBtn.classList.add('hidden');
                 holes.forEach(hole => {
                     hole.querySelector('.mole').classList.remove('up');
                     hole.querySelector('.mole').removeEventListener('click', whackMole);
@@ -1210,12 +1066,11 @@
             }
 
             moleStartBtn.addEventListener('click', startGame);
-            moleResetBtn.addEventListener('click', startGame); // Reset also starts a new game
+            moleResetBtn.addEventListener('click', startGame);
         }
 
-        // --- Flappy Bird Game Logic ---
-        let flappyBirdGameLoopId; // Global variable to store the animation frame ID
-        let flappyBirdGameActive = false; // Flag to control game loop
+        let flappyBirdGameLoopId;
+        let flappyBirdGameActive = false;
 
         function loadFlappyBirdGame() {
             gameContainer.innerHTML = `
@@ -1242,32 +1097,30 @@
             const startBtn = document.getElementById('flappyBirdStartBtn');
             const resetBtn = document.getElementById('flappyBirdResetBtn');
 
-            // Set canvas dimensions responsively
             function resizeCanvas() {
                 const containerWidth = canvas.parentElement.clientWidth;
-                canvas.width = Math.min(containerWidth - 40, 400); // Max width 400, or container width - padding
+                canvas.width = Math.min(containerWidth - 40, 400);
                 canvas.height = 300;
             }
-            resizeCanvas(); // Initial resize
-            window.addEventListener('resize', resizeCanvas); // Resize on window resize
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
 
-            // Game variables (ADJUSTED FOR EASIER PLAY)
             let birdX = 50;
             let birdY = canvas.height / 2;
             let birdVelocity = 0;
-            const gravity = 0.2; // Reduced gravity
-            const jumpStrength = -3.5; // FURTHER ADJUSTED jump strength (less high than -5)
+            const gravity = 0.2;
+            const jumpStrength = -3.5;
 
             const pipeWidth = 40;
-            const pipeGap = 120; // Slightly larger gap between top and bottom pipes
-            const pipeSpeed = 1.5; // Slightly slower pipes
+            const pipeGap = 120;
+            const pipeSpeed = 1.5;
             let pipes = [];
             let score = 0;
 
             function drawBird() {
                 ctx.fillStyle = 'yellow';
                 ctx.beginPath();
-                ctx.arc(birdX, birdY, 15, 0, Math.PI * 2); // Simple circle bird
+                ctx.arc(birdX, birdY, 15, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.strokeStyle = 'orange';
                 ctx.lineWidth = 2;
@@ -1291,15 +1144,12 @@
             }
 
             function updateGameArea() {
-                // Bird physics
                 birdVelocity += gravity;
                 birdY += birdVelocity;
 
-                // Move pipes and generate new ones
                 if (flappyBirdGameActive) {
                     pipes.forEach(pipe => {
                         pipe.x -= pipeSpeed;
-                        // Check for scoring
                         if (pipe.x + pipeWidth < birdX && !pipe.passed) {
                             score++;
                             scoreDisplay.textContent = `Score: ${score}`;
@@ -1307,26 +1157,19 @@
                         }
                     });
 
-                    // Remove off-screen pipes
                     pipes = pipes.filter(pipe => pipe.x + pipeWidth > 0);
 
-                    // Generate new pipe if needed
                     if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 200) {
                         generatePipe();
                     }
                 }
 
-                // Collision detection
-                // Bird hitting top or bottom
                 if (birdY + 15 > canvas.height || birdY - 15 < 0) {
                     endFlappyBirdGame();
                 }
 
-                // Bird hitting pipes
                 pipes.forEach(pipe => {
-                    // Check if bird is within horizontal range of pipe
                     if (birdX + 15 > pipe.x && birdX - 15 < pipe.x + pipeWidth) {
-                        // Check if bird hits top pipe or bottom pipe
                         if (birdY - 15 < pipe.topHeight || birdY + 15 > pipe.bottomY) {
                             endFlappyBirdGame();
                         }
@@ -1335,7 +1178,7 @@
             }
 
             function drawGame() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 drawBird();
                 drawPipes();
             }
@@ -1364,8 +1207,8 @@
                     scoreDisplay.textContent = `Score: ${score}`;
                     statusDisplay.classList.add('hidden');
                     startBtn.classList.add('hidden');
-                    resetBtn.classList.add('hidden'); // Hide reset until game over
-                    generatePipe(); // Generate initial pipe
+                    resetBtn.classList.add('hidden');
+                    generatePipe();
                     gameLoop();
                 }
             }
@@ -1375,11 +1218,10 @@
                 cancelAnimationFrame(flappyBirdGameLoopId);
                 statusDisplay.textContent = `Game Over! Final Score: ${score} 🎉`;
                 statusDisplay.classList.remove('hidden');
-                resetBtn.classList.remove('hidden'); // Show reset button
-                startBtn.classList.remove('hidden'); // Show start button (can be used as play again)
+                resetBtn.classList.remove('hidden');
+                startBtn.classList.remove('hidden');
             }
 
-            // Global function to stop the game, accessible from closeModal
             window.stopFlappyBirdGame = function() {
                 if (flappyBirdGameActive) {
                     flappyBirdGameActive = false;
@@ -1391,27 +1233,24 @@
                 }
             };
 
-            // Event listeners
             function handleFlappyBirdKeydown(e) {
                 if (e.code === 'Space') {
-                    e.preventDefault(); // Prevent scrolling
+                    e.preventDefault();
                     jump();
                 }
             }
 
             startBtn.addEventListener('click', startFlappyBirdGame);
-            resetBtn.addEventListener('click', startFlappyBirdGame); // Reset also starts a new game
-            canvas.addEventListener('click', jump); // Click to flap
-            canvas.addEventListener('touchstart', jump); // Touch to flap for mobile
+            resetBtn.addEventListener('click', startFlappyBirdGame);
+            canvas.addEventListener('click', jump);
+            canvas.addEventListener('touchstart', jump);
             window.addEventListener('keydown', handleFlappyBirdKeydown);
 
-            // Initial draw
             drawGame();
         }
 
-        // --- Snake Game Logic ---
-        let snakeGameLoopInterval; // Global variable to store the interval ID
-        let snakeGameActive = false; // Flag to control game loop
+        let snakeGameLoopInterval;
+        let snakeGameActive = false;
 
         function loadSnakeGame() {
             gameContainer.innerHTML = `
@@ -1449,23 +1288,22 @@
             const resetBtn = document.getElementById('snakeResetBtn');
             const controlButtons = document.querySelectorAll('.snake-control-btn');
 
-            const gridSize = 20; // Size of each snake segment/food item
-            let snake = [{ x: 10 * gridSize, y: 10 * gridSize }]; // Initial snake position
+            const gridSize = 20;
+            let snake = [{ x: 10 * gridSize, y: 10 * gridSize }];
             let food = {};
-            let dx = gridSize; // Initial direction: right
+            let dx = gridSize;
             let dy = 0;
             let score = 0;
             let changingDirection = false;
-            let gameSpeed = 150; // Milliseconds per frame
+            let gameSpeed = 150;
 
-            // Set canvas dimensions responsively
             function resizeCanvas() {
                 const containerWidth = canvas.parentElement.clientWidth;
-                canvas.width = Math.min(containerWidth - 40, 400); // Max width 400, or container width - padding
+                canvas.width = Math.min(containerWidth - 40, 400);
                 canvas.height = 400;
             }
-            resizeCanvas(); // Initial resize
-            window.addEventListener('resize', resizeCanvas); // Resize on window resize
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
 
 
             function generateFood() {
@@ -1473,10 +1311,9 @@
                     x: Math.floor(Math.random() * (canvas.width / gridSize)) * gridSize,
                     y: Math.floor(Math.random() * (canvas.height / gridSize)) * gridSize
                 };
-                // Ensure food doesn't spawn on the snake
                 for (let i = 0; i < snake.length; i++) {
                     if (snake[i].x === food.x && snake[i].y === food.y) {
-                        generateFood(); // Recalculate if overlap
+                        generateFood();
                         return;
                     }
                 }
@@ -1504,7 +1341,7 @@
 
             function advanceSnake() {
                 const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-                snake.unshift(head); // Add new head
+                snake.unshift(head);
 
                 const didEatFood = head.x === food.x && head.y === food.y;
                 if (didEatFood) {
@@ -1512,12 +1349,11 @@
                     scoreDisplay.textContent = `Score: ${score}`;
                     generateFood();
                 } else {
-                    snake.pop(); // Remove tail if no food eaten
+                    snake.pop();
                 }
             }
 
             function checkCollision() {
-                // Check wall collision
                 const hitLeftWall = snake[0].x < 0;
                 const hitRightWall = snake[0].x >= canvas.width;
                 const hitTopWall = snake[0].y < 0;
@@ -1527,7 +1363,6 @@
                     return true;
                 }
 
-                // Check self-collision (head hits any part of body)
                 for (let i = 1; i < snake.length; i++) {
                     if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) {
                         return true;
@@ -1539,7 +1374,7 @@
             function gameTick() {
                 if (!snakeGameActive) return;
 
-                changingDirection = false; // Allow direction change after each tick
+                changingDirection = false;
 
                 if (checkCollision()) {
                     endSnakeGame();
@@ -1561,22 +1396,21 @@
                 const goingLeft = dx === -gridSize;
                 const goingRight = dx === gridSize;
 
-                if ((keyPressed === 37 || direction === 'left') && !goingRight) { // Left arrow
+                if ((keyPressed === 37 || direction === 'left') && !goingRight) {
                     dx = -gridSize;
                     dy = 0;
-                } else if ((keyPressed === 38 || direction === 'up') && !goingDown) { // Up arrow
+                } else if ((keyPressed === 38 || direction === 'up') && !goingDown) {
                     dx = 0;
                     dy = -gridSize;
-                } else if ((keyPressed === 39 || direction === 'right') && !goingLeft) { // Right arrow
+                } else if ((keyPressed === 39 || direction === 'right') && !goingLeft) {
                     dx = gridSize;
                     dy = 0;
-                } else if ((keyPressed === 40 || direction === 'down') && !goingUp) { // Down arrow
+                } else if ((keyPressed === 40 || direction === 'down') && !goingUp) {
                     dx = 0;
                     dy = gridSize;
                 }
             }
 
-            // Touch swipe support for mobile
             let touchStartX = 0;
             let touchStartY = 0;
 
@@ -1592,14 +1426,13 @@
                 const deltaX = touchEndX - touchStartX;
                 const deltaY = touchEndY - touchStartY;
 
-                // Determine swipe direction
-                if (Math.abs(deltaX) > Math.abs(deltaY)) { // Horizontal swipe
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
                     if (deltaX > 0) {
                         changeDirection({ type: 'click', target: { dataset: { direction: 'right' } } });
                     } else {
                         changeDirection({ type: 'click', target: { dataset: { direction: 'left' } } });
                     }
-                } else { // Vertical swipe
+                } else {
                     if (deltaY > 0) {
                         changeDirection({ type: 'click', target: { dataset: { direction: 'down' } } });
                     } else {
@@ -1621,7 +1454,7 @@
                     startBtn.classList.add('hidden');
                     resetBtn.classList.add('hidden');
                     generateFood();
-                    drawGame(); // Initial draw
+                    drawGame();
                     snakeGameLoopInterval = setInterval(gameTick, gameSpeed);
                 }
             }
@@ -1635,7 +1468,6 @@
                 startBtn.classList.remove('hidden');
             }
 
-            // Global function to stop the game, accessible from closeModal
             window.stopSnakeGame = function() {
                 if (snakeGameActive) {
                     snakeGameActive = false;
@@ -1648,147 +1480,24 @@
                 }
             };
 
-            // Event listeners
             startBtn.addEventListener('click', startSnakeGame);
-            resetBtn.addEventListener('click', startSnakeGame); // Reset also starts a new game
+            resetBtn.addEventListener('click', startSnakeGame);
             window.addEventListener('keydown', changeDirection);
             canvas.addEventListener('touchstart', handleTouchStart);
             canvas.addEventListener('touchend', handleTouchEnd);
             controlButtons.forEach(btn => btn.addEventListener('click', changeDirection));
 
-            // Initial draw
             drawGame();
         }
 
-        // --- Memory Game Logic ---
-        function loadMemoryGame() {
-            gameContainer.innerHTML = `
-                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-lg w-full">
-                    <p id="memoryMoves" class="game-info text-xl text-gray-800">Moves: 0</p>
-                    <div id="memoryGrid" class="memory-grid mb-6">
-                        <!-- Cards will be generated here -->
-                    </div>
-                    <p id="memoryStatus" class="game-info text-xl text-gray-700"></p>
-                    <button id="memoryResetBtn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out">
-                        New Game
-                    </button>
-                </div>
-            `;
-
-            const emojis = ['🍎', '🍌', '🍒', '🍇', '🍋', '🍓', '🍍', '🥝']; // 8 pairs
-            let cards = [];
-            let flippedCards = [];
-            let matchedPairs = 0;
-            let moves = 0;
-            let waitingForFlipBack = false;
-
-            const memoryGrid = document.getElementById('memoryGrid');
-            const movesDisplay = document.getElementById('memoryMoves');
-            const statusDisplay = document.getElementById('memoryStatus');
-            const resetButton = document.getElementById('memoryResetBtn');
-
-            function initializeMemoryGame() {
-                cards = [];
-                flippedCards = [];
-                matchedPairs = 0;
-                moves = 0;
-                waitingForFlipBack = false;
-                movesDisplay.textContent = `Moves: ${moves}`;
-                statusDisplay.textContent = 'Find the matching pairs!';
-                memoryGrid.innerHTML = ''; // Clear previous cards
-
-                // Create pairs of emojis
-                let gameEmojis = [...emojis, ...emojis];
-                // Shuffle them
-                gameEmojis.sort(() => Math.random() - 0.5);
-
-                // Create card elements
-                gameEmojis.forEach((emoji, index) => {
-                    const cardElement = document.createElement('div');
-                    cardElement.classList.add('memory-card');
-                    cardElement.dataset.index = index;
-                    cardElement.dataset.emoji = emoji;
-
-                    const cardInner = document.createElement('div');
-                    cardInner.classList.add('card-inner');
-
-                    const cardBack = document.createElement('div');
-                    cardBack.classList.add('card-face', 'card-back');
-                    cardBack.textContent = '?'; // Placeholder for unflipped card
-
-                    const cardFront = document.createElement('div');
-                    cardFront.classList.add('card-face', 'card-front');
-                    cardFront.textContent = emoji;
-
-                    cardInner.appendChild(cardBack);
-                    cardInner.appendChild(cardFront);
-                    cardElement.appendChild(cardInner);
-
-                    cardElement.addEventListener('click', () => flipCard(cardElement));
-                    memoryGrid.appendChild(cardElement);
-                    cards.push(cardElement);
-                });
-            }
-
-            function flipCard(cardElement) {
-                if (waitingForFlipBack || cardElement.classList.contains('flipped') || cardElement.classList.contains('matched')) {
-                    return;
-                }
-
-                cardElement.classList.add('flipped');
-                flippedCards.push(cardElement);
-
-                if (flippedCards.length === 2) {
-                    moves++;
-                    movesDisplay.textContent = `Moves: ${moves}`;
-                    waitingForFlipBack = true;
-                    checkForMatch();
-                }
-            }
-
-            function checkForMatch() {
-                const [card1, card2] = flippedCards;
-                const emoji1 = card1.dataset.emoji;
-                const emoji2 = card2.dataset.emoji;
-
-                if (emoji1 === emoji2) {
-                    // Match found
-                    card1.classList.add('matched');
-                    card2.classList.add('matched');
-                    statusDisplay.textContent = 'Match found! 🎉';
-                    matchedPairs++;
-                    flippedCards = [];
-                    waitingForFlipBack = false;
-
-                    if (matchedPairs === emojis.length) { // All pairs matched
-                        statusDisplay.textContent = `Congratulations! You won in ${moves} moves! 🏆`;
-                    }
-                } else {
-                    // No match, flip back after a delay
-                    statusDisplay.textContent = 'No match, try again.';
-                    setTimeout(() => {
-                        card1.classList.remove('flipped');
-                        card2.classList.remove('flipped');
-                        flippedCards = [];
-                        waitingForFlipBack = false;
-                        statusDisplay.textContent = 'Find the matching pairs!';
-                    }, 1000); // 1 second delay
-                }
-            }
-
-            resetButton.addEventListener('click', initializeMemoryGame);
-            initializeMemoryGame();
-        }
-
-        // --- Simon Says Game Logic ---
         let simonSequence = [];
         let playerSequence = [];
         let level = 0;
         let simonGameActive = false;
         let canClick = false;
-        let flashDelay = 600; // Time each button stays lit
-        let sequenceDelay = 300; // Delay between flashes in sequence
-        let timeoutIds = []; // To store timeouts for cleanup
+        let flashDelay = 600;
+        let sequenceDelay = 300;
+        let timeoutIds = [];
 
         function loadSimonSaysGame() {
             gameContainer.innerHTML = `
@@ -1820,10 +1529,9 @@
             function flashButton(color) {
                 const button = document.getElementById(`simon${color.charAt(0).toUpperCase() + color.slice(1)}`);
                 button.classList.add('active');
-                // No sound library included, so only visual flash
                 timeoutIds.push(setTimeout(() => {
                     button.classList.remove('active');
-                }, flashDelay / 2)); // Half the flash duration for visual effect
+                }, flashDelay / 2));
             }
 
             function playSequence() {
@@ -1835,13 +1543,13 @@
                     i++;
                     if (i >= simonSequence.length) {
                         clearInterval(intervalId);
-                        timeoutIds.push(setTimeout(() => { // Small delay before allowing input
+                        timeoutIds.push(setTimeout(() => {
                             statusDisplay.textContent = 'Your turn!';
                             canClick = true;
                         }, sequenceDelay));
                     }
                 }, flashDelay + sequenceDelay);
-                timeoutIds.push(intervalId); // Store interval ID for cleanup
+                timeoutIds.push(intervalId);
             }
 
             function nextRound() {
@@ -1857,7 +1565,7 @@
                 if (!canClick || !simonGameActive) return;
 
                 const clickedColor = event.target.dataset.color;
-                if (!clickedColor) return; // Clicked outside a button
+                if (!clickedColor) return;
 
                 flashButton(clickedColor);
                 playerSequence.push(clickedColor);
@@ -1866,13 +1574,11 @@
 
                 if (playerSequence[currentSequenceIndex] === simonSequence[currentSequenceIndex]) {
                     if (playerSequence.length === simonSequence.length) {
-                        // Player completed the sequence successfully
-                        canClick = false; // Prevent further clicks during transition
+                        canClick = false;
                         statusDisplay.textContent = 'Correct! Get ready for next level.';
-                        timeoutIds.push(setTimeout(nextRound, 1500)); // Delay before next round
+                        timeoutIds.push(setTimeout(nextRound, 1500));
                     }
                 } else {
-                    // Incorrect guess
                     endSimonSaysGame();
                 }
             }
@@ -1895,148 +1601,153 @@
                 statusDisplay.textContent = `Game Over! You reached Level ${level} 💀`;
                 startBtn.classList.remove('hidden');
                 resetBtn.classList.add('hidden');
-                // Clear all active timeouts/intervals
                 timeoutIds.forEach(id => clearTimeout(id) || clearInterval(id));
-                timeoutIds = []; // Reset the array
+                timeoutIds = [];
             }
 
-            // Global function to stop the game, accessible from closeModal
             window.stopSimonSaysGame = function() {
                 if (simonGameActive) {
-                    endSimonSaysGame(); // Use end game logic to clean up
+                    endSimonSaysGame();
                 }
-                // Ensure buttons are not active visually
                 colorButtons.forEach(btn => btn.classList.remove('active'));
             };
 
-            // Event Listeners
             startBtn.addEventListener('click', startSimonSaysGame);
-            resetBtn.addEventListener('click', startSimonSaysGame); // Reset also starts a new game
+            resetBtn.addEventListener('click', startSimonSaysGame);
             colorButtons.forEach(button => {
                 button.addEventListener('click', handlePlayerClick);
             });
         }
 
-        // --- AI Photo Generator Logic ---
-        function loadAIPhotoGenerator() {
+        let clickerGameLoopInterval;
+        let score = 0;
+        let clickPower = 1;
+        let autoClickRate = 0;
+        let upgrades = [
+            { id: 0, name: 'Click Power +1', cost: 10, power: 1, type: 'click', quantity: 0 },
+            { id: 1, name: 'Auto Clicker (0.1/s)', cost: 50, power: 0.1, type: 'auto', quantity: 0 }
+        ];
+
+        function loadClickerGame() {
             gameContainer.innerHTML = `
-                <div class="ai-gen-container flex flex-col items-center p-6 bg-white rounded-lg shadow-xl w-full">
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-center text-gray-800 mb-6 leading-tight">
-                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-600">
-                            AI Photo Generator
-                        </span>
-                    </h2>
-
-                    <p class="text-center text-gray-600 text-lg mb-6">
-                        Enter a description and let AI create an image for you!
-                    </p>
-
-                    <div class="w-full mb-6">
-                        <textarea id="aiPromptInput" class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-lg resize-y min-h-[100px]" placeholder="Describe the image you want to generate (e.g., 'A futuristic city at sunset, cyberpunk style')."></textarea>
-                    </div>
-
-                    <button id="aiGenerateBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 mb-6">
-                        Generate Image
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl max-w-lg w-full">
+                    <h3 id="clickerScore" class="text-4xl font-extrabold text-indigo-600 mb-6">${score.toFixed(1)} Points</h3>
+                    <button id="clickerMainButton" class="clicker-main-button mb-8">
+                        +${clickPower}
                     </button>
 
-                    <div id="aiLoadingIndicator" class="hidden flex flex-col items-center mb-6">
-                        <div class="ai-gen-loading-spinner"></div>
-                        <p class="mt-2 text-gray-600">Generating image...</p>
+                    <div id="upgradesContainer" class="w-full">
+                        <h4 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Upgrades</h4>
                     </div>
 
-                    <div id="aiImageDisplay" class="w-full flex justify-center items-center bg-gray-100 rounded-lg overflow-hidden shadow-md min-h-[250px]">
-                        <img id="aiGeneratedImage" src="https://placehold.co/400x250/cccccc/333333?text=Your+AI+Image+Here" alt="Generated AI Image" class="w-full h-auto object-contain max-h-[500px]">
-                    </div>
-
-                    <p id="aiErrorDisplay" class="text-red-600 mt-4 hidden text-center"></p>
+                    <p id="clickerInfo" class="text-lg text-gray-500 mt-4">
+                        Click Power: <span id="clickPowerDisplay">${clickPower}</span> | Auto Rate: <span id="autoClickRateDisplay">${autoClickRate.toFixed(1)}</span>/s
+                    </p>
+                    <button id="clickerResetBtn" class="mt-6 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out">
+                        Reset Game
+                    </button>
                 </div>
             `;
 
-            // Get references to elements within the dynamically loaded content
-            const promptInput = document.getElementById('aiPromptInput');
-            const generateBtn = document.getElementById('aiGenerateBtn');
-            const loadingIndicator = document.getElementById('aiLoadingIndicator');
-            const generatedImage = document.getElementById('aiGeneratedImage');
-            const imageDisplay = document.getElementById('aiImageDisplay');
-            const errorDisplay = document.getElementById('aiErrorDisplay');
+            const scoreDisplay = document.getElementById('clickerScore');
+            const mainButton = document.getElementById('clickerMainButton');
+            const upgradesContainer = document.getElementById('upgradesContainer');
+            const clickPowerDisplay = document.getElementById('clickPowerDisplay');
+            const autoClickRateDisplay = document.getElementById('autoClickRateDisplay');
+            const resetBtn = document.getElementById('clickerResetBtn');
 
-            // Function to generate image using the Gemini API
-            async function generateImage() {
-                const prompt = promptInput.value.trim();
-                if (!prompt) {
-                    errorDisplay.textContent = 'Please enter a description for the image.';
-                    errorDisplay.classList.remove('hidden');
-                    return;
-                }
+            score = 0;
+            clickPower = 1;
+            autoClickRate = 0;
+            upgrades = [
+                { id: 0, name: 'Click Power +1', cost: 10, power: 1, type: 'click', quantity: 0 },
+                { id: 1, name: 'Auto Clicker (0.1/s)', cost: 50, power: 0.1, type: 'auto', quantity: 0 }
+            ];
 
-                // Clear previous error and hide image
-                errorDisplay.classList.add('hidden');
-                generatedImage.classList.add('hidden');
-                generatedImage.src = ''; // Clear previous image
-                imageDisplay.style.backgroundColor = '#e2e8f0'; // Show placeholder background
-                imageDisplay.innerHTML = '<img id="aiGeneratedImage" src="https://placehold.co/400x250/cccccc/333333?text=Your+AI+Image+Here" alt="Generated AI Image" class="w-full h-auto object-contain max-h-[500px]">';
+            function updateDisplay() {
+                scoreDisplay.textContent = `${score.toFixed(1)} Points`;
+                mainButton.textContent = `+${clickPower}`;
+                clickPowerDisplay.textContent = clickPower;
+                autoClickRateDisplay.textContent = autoClickRate.toFixed(1);
+                renderUpgrades();
+            }
 
+            function handleMainClick() {
+                score += clickPower;
+                updateDisplay();
+            }
 
-                // Show loading indicator
-                loadingIndicator.classList.remove('hidden');
-                generateBtn.disabled = true;
-                generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            function renderUpgrades() {
+                upgradesContainer.innerHTML = `<h4 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Upgrades</h4>`;
+                upgrades.forEach(upgrade => {
+                    const card = document.createElement('div');
+                    card.classList.add('clicker-upgrade-card');
+                    card.innerHTML = `
+                        <div>
+                            <p class="font-bold text-gray-800">${upgrade.name} (x${upgrade.quantity})</p>
+                            <p class="text-sm text-gray-600">Cost: ${upgrade.cost} Points</p>
+                        </div>
+                        <button data-upgrade-id="${upgrade.id}" ${score < upgrade.cost ? 'disabled' : ''}>
+                            Buy
+                        </button>
+                    `;
+                    upgradesContainer.appendChild(card);
+                });
 
-                try {
-                    const payload = { instances: { prompt: prompt }, parameters: { "sampleCount": 1} };
-                    const apiKey = ""; // Leave this as-is; Canvas will provide the key at runtime.
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+                document.querySelectorAll('.clicker-upgrade-card button').forEach(button => {
+                    button.addEventListener('click', buyUpgrade);
+                });
+            }
 
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+            function buyUpgrade(event) {
+                const id = parseInt(event.target.dataset.upgradeId);
+                const upgrade = upgrades.find(u => u.id === id);
 
-                    const result = await response.json();
+                if (score >= upgrade.cost) {
+                    score -= upgrade.cost;
+                    upgrade.quantity++;
 
-                    if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
-                        const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
-                        generatedImage.src = imageUrl;
-                        generatedImage.classList.remove('hidden');
-                        imageDisplay.style.backgroundColor = 'transparent'; // Remove background once image loads
-                        imageDisplay.innerHTML = '';
-                        imageDisplay.appendChild(generatedImage);
-                    } else {
-                        errorDisplay.textContent = 'Failed to generate image. Please try a different prompt.';
-                        errorDisplay.classList.remove('hidden');
-                        generatedImage.src = 'https://placehold.co/400x250/ffcccc/cc0000?text=Error'; // Error placeholder
-                        generatedImage.classList.remove('hidden');
-                        imageDisplay.innerHTML = '';
-                        imageDisplay.appendChild(generatedImage);
+                    if (upgrade.type === 'click') {
+                        clickPower += upgrade.power;
+                        upgrade.cost = Math.ceil(upgrade.cost * 1.5);
+                    } else if (upgrade.type === 'auto') {
+                        autoClickRate += upgrade.power;
+                        upgrade.cost = Math.ceil(upgrade.cost * 1.75);
                     }
-                } catch (error) {
-                    console.error('Error generating image:', error);
-                    errorDisplay.textContent = 'An error occurred while generating the image. Please try again.';
-                    errorDisplay.classList.remove('hidden');
-                    generatedImage.src = 'https://placehold.co/400x250/ffcccc/cc0000?text=Error'; // Error placeholder
-                    generatedImage.classList.remove('hidden');
-                    imageDisplay.innerHTML = '';
-                    imageDisplay.appendChild(generatedImage);
-                } finally {
-                    loadingIndicator.classList.add('hidden');
-                    generateBtn.disabled = false;
-                    generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                    updateDisplay();
                 }
             }
 
-            // Event listener for the Generate button
-            generateBtn.addEventListener('click', generateImage);
+            function autoTick() {
+                score += autoClickRate / 10;
+                updateDisplay();
+            }
 
-            // Allow pressing Enter in the textarea to generate image
-            promptInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { // Shift+Enter for new line
-                    e.preventDefault();
-                    generateImage();
-                }
-            });
+            function resetGame() {
+                score = 0;
+                clickPower = 1;
+                autoClickRate = 0;
+                upgrades = [
+                    { id: 0, name: 'Click Power +1', cost: 10, power: 1, type: 'click', quantity: 0 },
+                    { id: 1, name: 'Auto Clicker (0.1/s)', cost: 50, power: 0.1, type: 'auto', quantity: 0 }
+                ];
+                updateDisplay();
+            }
+
+            window.stopClickerGame = function() {
+                clearInterval(clickerGameLoopInterval);
+                mainButton.removeEventListener('click', handleMainClick);
+                resetBtn.removeEventListener('click', resetGame);
+            };
+
+            mainButton.addEventListener('click', handleMainClick);
+            resetBtn.addEventListener('click', resetGame);
+
+            clickerGameLoopInterval = setInterval(autoTick, 100);
+
+            updateDisplay();
         }
-
     </script>
 </body>
 </html>
